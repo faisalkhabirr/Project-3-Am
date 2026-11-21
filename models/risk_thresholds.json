@@ -1,0 +1,310 @@
+{
+  "mode": "per_ward",
+  "thresholds": {
+    "CCC_Ward_01": {
+      "low_max": 0.0,
+      "medium_max": 6.0,
+      "high_max": 13.0
+    },
+    "CCC_Ward_02": {
+      "low_max": 0.0,
+      "medium_max": 2.0,
+      "high_max": 7.0
+    },
+    "CCC_Ward_03": {
+      "low_max": 0.0,
+      "medium_max": 6.0,
+      "high_max": 15.0
+    },
+    "CCC_Ward_04": {
+      "low_max": 0.0,
+      "medium_max": 4.0,
+      "high_max": 10.0
+    },
+    "CCC_Ward_05": {
+      "low_max": 0.0,
+      "medium_max": 2.0,
+      "high_max": 7.0
+    },
+    "CCC_Ward_06": {
+      "low_max": 0.0,
+      "medium_max": 3.0,
+      "high_max": 9.0
+    },
+    "CCC_Ward_07": {
+      "low_max": 0.0,
+      "medium_max": 5.0,
+      "high_max": 11.0
+    },
+    "CCC_Ward_08": {
+      "low_max": 0.0,
+      "medium_max": 4.0,
+      "high_max": 10.0
+    },
+    "CCC_Ward_09": {
+      "low_max": 0.0,
+      "medium_max": 2.0,
+      "high_max": 6.0
+    },
+    "CCC_Ward_10": {
+      "low_max": 0.0,
+      "medium_max": 3.0,
+      "high_max": 8.0
+    },
+    "DNCC_Ward_01": {
+      "low_max": 0.0,
+      "medium_max": 5.0,
+      "high_max": 11.0
+    },
+    "DNCC_Ward_02": {
+      "low_max": 0.0,
+      "medium_max": 4.0,
+      "high_max": 9.0
+    },
+    "DNCC_Ward_03": {
+      "low_max": 0.0,
+      "medium_max": 4.0,
+      "high_max": 9.0
+    },
+    "DNCC_Ward_04": {
+      "low_max": 0.0,
+      "medium_max": 3.0,
+      "high_max": 6.0
+    },
+    "DNCC_Ward_05": {
+      "low_max": 0.0,
+      "medium_max": 4.0,
+      "high_max": 9.0
+    },
+    "DNCC_Ward_06": {
+      "low_max": 0.0,
+      "medium_max": 3.0,
+      "high_max": 6.0
+    },
+    "DNCC_Ward_07": {
+      "low_max": 0.0,
+      "medium_max": 3.0,
+      "high_max": 8.0
+    },
+    "DNCC_Ward_08": {
+      "low_max": 0.0,
+      "medium_max": 3.0,
+      "high_max": 8.0
+    },
+    "DNCC_Ward_09": {
+      "low_max": 0.0,
+      "medium_max": 5.0,
+      "high_max": 11.0
+    },
+    "DNCC_Ward_10": {
+      "low_max": 0.0,
+      "medium_max": 5.0,
+      "high_max": 10.0
+    },
+    "DNCC_Ward_11": {
+      "low_max": 0.0,
+      "medium_max": 4.0,
+      "high_max": 10.0
+    },
+    "DNCC_Ward_12": {
+      "low_max": 0.0,
+      "medium_max": 6.0,
+      "high_max": 15.0
+    },
+    "DNCC_Ward_13": {
+      "low_max": 0.0,
+      "medium_max": 3.0,
+      "high_max": 6.0
+    },
+    "DNCC_Ward_14": {
+      "low_max": 0.0,
+      "medium_max": 3.0,
+      "high_max": 7.0
+    },
+    "DNCC_Ward_15": {
+      "low_max": 0.0,
+      "medium_max": 5.0,
+      "high_max": 10.0
+    },
+    "DNCC_Ward_16": {
+      "low_max": 0.0,
+      "medium_max": 3.0,
+      "high_max": 9.0
+    },
+    "DNCC_Ward_17": {
+      "low_max": 0.0,
+      "medium_max": 3.0,
+      "high_max": 7.0
+    },
+    "DNCC_Ward_18": {
+      "low_max": 0.0,
+      "medium_max": 5.0,
+      "high_max": 13.0
+    },
+    "DNCC_Ward_19": {
+      "low_max": 0.0,
+      "medium_max": 6.0,
+      "high_max": 13.0
+    },
+    "DNCC_Ward_20": {
+      "low_max": 0.0,
+      "medium_max": 3.0,
+      "high_max": 6.0
+    },
+    "DSCC_Ward_01": {
+      "low_max": 0.0,
+      "medium_max": 3.0,
+      "high_max": 8.0
+    },
+    "DSCC_Ward_02": {
+      "low_max": 0.0,
+      "medium_max": 3.0,
+      "high_max": 8.0
+    },
+    "DSCC_Ward_03": {
+      "low_max": 0.0,
+      "medium_max": 5.0,
+      "high_max": 12.0
+    },
+    "DSCC_Ward_04": {
+      "low_max": 0.0,
+      "medium_max": 6.0,
+      "high_max": 15.0
+    },
+    "DSCC_Ward_05": {
+      "low_max": 0.0,
+      "medium_max": 4.0,
+      "high_max": 9.0
+    },
+    "DSCC_Ward_06": {
+      "low_max": 0.0,
+      "medium_max": 6.0,
+      "high_max": 14.0
+    },
+    "DSCC_Ward_07": {
+      "low_max": 0.0,
+      "medium_max": 2.0,
+      "high_max": 6.0
+    },
+    "DSCC_Ward_08": {
+      "low_max": 0.0,
+      "medium_max": 5.0,
+      "high_max": 9.0
+    },
+    "DSCC_Ward_09": {
+      "low_max": 0.0,
+      "medium_max": 3.0,
+      "high_max": 7.0
+    },
+    "DSCC_Ward_10": {
+      "low_max": 0.0,
+      "medium_max": 6.0,
+      "high_max": 12.0
+    },
+    "DSCC_Ward_11": {
+      "low_max": 0.0,
+      "medium_max": 4.0,
+      "high_max": 9.0
+    },
+    "DSCC_Ward_12": {
+      "low_max": 0.0,
+      "medium_max": 6.0,
+      "high_max": 12.0
+    },
+    "DSCC_Ward_13": {
+      "low_max": 0.0,
+      "medium_max": 5.0,
+      "high_max": 11.0
+    },
+    "DSCC_Ward_14": {
+      "low_max": 0.0,
+      "medium_max": 2.0,
+      "high_max": 5.0
+    },
+    "DSCC_Ward_15": {
+      "low_max": 0.0,
+      "medium_max": 3.0,
+      "high_max": 8.0
+    },
+    "DSCC_Ward_16": {
+      "low_max": 0.0,
+      "medium_max": 3.0,
+      "high_max": 6.0
+    },
+    "DSCC_Ward_17": {
+      "low_max": 0.0,
+      "medium_max": 3.0,
+      "high_max": 6.0
+    },
+    "DSCC_Ward_18": {
+      "low_max": 0.0,
+      "medium_max": 5.0,
+      "high_max": 11.0
+    },
+    "DSCC_Ward_19": {
+      "low_max": 0.0,
+      "medium_max": 6.0,
+      "high_max": 12.0
+    },
+    "DSCC_Ward_20": {
+      "low_max": 0.0,
+      "medium_max": 5.0,
+      "high_max": 10.0
+    },
+    "GCC_Ward_01": {
+      "low_max": 0.0,
+      "medium_max": 5.0,
+      "high_max": 11.0
+    },
+    "GCC_Ward_02": {
+      "low_max": 0.0,
+      "medium_max": 6.0,
+      "high_max": 13.0
+    },
+    "GCC_Ward_03": {
+      "low_max": 0.0,
+      "medium_max": 5.0,
+      "high_max": 12.0
+    },
+    "GCC_Ward_04": {
+      "low_max": 0.0,
+      "medium_max": 4.0,
+      "high_max": 10.0
+    },
+    "GCC_Ward_05": {
+      "low_max": 0.0,
+      "medium_max": 5.0,
+      "high_max": 11.0
+    },
+    "NCC_Ward_01": {
+      "low_max": 0.0,
+      "medium_max": 5.0,
+      "high_max": 10.0
+    },
+    "NCC_Ward_02": {
+      "low_max": 0.0,
+      "medium_max": 3.0,
+      "high_max": 8.0
+    },
+    "NCC_Ward_03": {
+      "low_max": 0.0,
+      "medium_max": 4.0,
+      "high_max": 8.0
+    },
+    "NCC_Ward_04": {
+      "low_max": 0.0,
+      "medium_max": 4.0,
+      "high_max": 7.0
+    },
+    "NCC_Ward_05": {
+      "low_max": 0.0,
+      "medium_max": 6.0,
+      "high_max": 13.0
+    },
+    "__default__": {
+      "low_max": 0.0,
+      "medium_max": 3.0,
+      "high_max": 8.0
+    }
+  }
+}

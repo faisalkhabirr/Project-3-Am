@@ -1,0 +1,102 @@
+{
+  "model_name": "HistGradientBoostingRegressor (Poisson)",
+  "trained_at": "2026-11-21",
+  "features": [
+    "horizon_weeks",
+    "avg_temp_c",
+    "rainfall_mm",
+    "relative_humidity_pct",
+    "rain_lag_1w",
+    "rain_lag_2w",
+    "rain_lag_3w",
+    "rain_lag_4w",
+    "rain_cum_2w",
+    "rain_cum_4w",
+    "humidity_lag_1w",
+    "humidity_lag_2w",
+    "humidity_lag_3w",
+    "humidity_lag_4w",
+    "humidity_mean_4w",
+    "temp_lag_1w",
+    "temp_lag_2w",
+    "temp_lag_3w",
+    "temp_lag_4w",
+    "temp_mean_4w",
+    "temp_suitability",
+    "cases_current",
+    "cases_lag_1w",
+    "cases_lag_2w",
+    "cases_lag_3w",
+    "cases_lag_4w",
+    "week_sin",
+    "week_cos",
+    "month",
+    "population_density_sqkm",
+    "water_logging_risk_index",
+    "sanitation_score"
+  ],
+  "params": {
+    "loss": "poisson",
+    "learning_rate": 0.05,
+    "max_iter": 350,
+    "max_leaf_nodes": 31,
+    "min_samples_leaf": 20,
+    "l2_regularization": 1.0,
+    "early_stopping": false,
+    "random_state": 42
+  },
+  "mae": 1.0543335189888488,
+  "rmse": 2.096826547466175,
+  "baseline_mae": {
+    "1": 1.6933333333333334,
+    "2": 1.6933333333333334,
+    "3": 1.6933333333333334,
+    "4": 1.6933333333333334
+  },
+  "persistence_mae": {
+    "1": 1.4093650793650794,
+    "2": 1.6587301587301588,
+    "3": 1.8693650793650793,
+    "4": 2.055873015873016
+  },
+  "intervals": {
+    "1": {
+      "p10": -1.3891149064361799,
+      "p90": 2.7807595613929093
+    },
+    "2": {
+      "p10": -1.4400091191017739,
+      "p90": 2.4215525057860177
+    },
+    "3": {
+      "p10": -1.4746850203965471,
+      "p90": 2.388121446312816
+    },
+    "4": {
+      "p10": -1.8174334352711152,
+      "p90": 3.3151873056792676
+    }
+  },
+  "split": {
+    "train": {
+      "start": "2016-01-11",
+      "end": "2022-12-26",
+      "weeks": 364
+    },
+    "validation": {
+      "start": "2023-01-02",
+      "end": "2023-12-25",
+      "weeks": 52
+    },
+    "test": {
+      "start": "2024-01-01",
+      "end": "2025-12-29",
+      "weeks": 105
+    }
+  },
+  "rows": {
+    "train": 87000,
+    "validation": 12480,
+    "test": 25200
+  }
+}
