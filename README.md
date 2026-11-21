@@ -119,21 +119,28 @@ model-selection rationale.
 
 ## Model and validation
 
-<!-- MODEL_SECTION_START -->
-The prediction engine consumes the engineered feature table and returns weekly cases for the
-selected ward and lead time. It is trained only on weeks up to 2022, checked on 2023, and
-evaluated on the untouched 2024–2025 holdout.
+The shipped engine is a **Poisson gradient-boosted regressor**
+(`HistGradientBoostingRegressor`). It learns non-linear interactions between rainfall lags,
+humidity, temperature, seasonality and ward vulnerability, then maps predicted weekly cases
+onto ward-specific risk tiers.
+
+The exact artifact in `models/` is reproducible from the committed pipeline:
+
+```bash
+python -m src.data.build_features     # raw CSV → data/processed/features.csv
+python -m src.model.train             # features → models/ + metrics.json
+```
 
 | Metric (2024–2025 holdout) | Value |
 |---|---|
-| MAE | _populated from `models/metrics.json`_ |
-| RMSE | _populated from `models/metrics.json`_ |
-| Seasonal-naive MAE | _populated from `models/metrics.json`_ |
-| Persistence MAE | _populated from `models/metrics.json`_ |
+| MAE | **1.05** cases / ward-week |
+| RMSE | **2.10** cases / ward-week |
+| Seasonal-naive MAE | 1.69 |
+| Persistence MAE | 1.75 |
 
-The exact model name and metrics are rendered live in the **Validation** tab and read from
-`models/metrics.json`. Training and feature code live in `src/data/` and `src/model/`.
-<!-- MODEL_SECTION_END -->
+The model is trained on target weeks up to 2022, validated on 2023, and evaluated on the
+untouched 2024–2025 holdout. The exact values are read from `models/metrics.json` and rendered
+live in the **Validation** tab.
 
 ---
 
