@@ -14,7 +14,7 @@ serves a live risk tier and driver breakdown for every ward.
 
 ## Quickstart (under 3 minutes)
 
-**Requirements:** Python 3.11 or 3.12, no API keys, no external services.
+**Requirements:** Python 3.11 or 3.12 (tested on both), no API keys, no external services.
 
 ```bash
 git clone https://github.com/faisalkhabirr/Project-3-Am.git
