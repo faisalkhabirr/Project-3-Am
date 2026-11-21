@@ -428,24 +428,6 @@ def predict_batch(
     return result
 
 
-def _final_estimator(model: Any) -> Any:
-    if hasattr(model, "steps"):
-        return model.steps[-1][1]
-    return model
-
-
-def global_importance(bundle: dict) -> pd.Series:
-    """Return global feature importance when the estimator exposes it."""
-    columns = bundle["feature_columns"]
-    estimator = _final_estimator(bundle["model"])
-    values = getattr(estimator, "feature_importances_", None)
-    if values is None and hasattr(estimator, "coef_"):
-        values = np.abs(np.asarray(estimator.coef_).reshape(-1))
-    if values is None or len(values) != len(columns):
-        return pd.Series(1.0, index=columns, dtype=float)
-    return pd.Series(np.asarray(values, dtype=float), index=columns)
-
-
 def explain(
     ward_id: str,
     as_of: pd.Timestamp,
@@ -547,14 +529,3 @@ def split_summary(metrics: dict) -> pd.DataFrame:
             {"Split": "Test", "Start": "2024-01-01", "End": "2025-12-29", "Weeks": 105},
         ]
     )
-
-
-def model_summary(bundle: dict) -> dict:
-    metrics = bundle.get("metrics") or {}
-    estimator = _final_estimator(bundle["model"])
-    return {
-        "name": metrics.get("model_name") or type(estimator).__name__,
-        "trained_at": metrics.get("trained_at", "—"),
-        "n_features": len(bundle.get("feature_columns") or []),
-        "metrics": metrics,
-    }

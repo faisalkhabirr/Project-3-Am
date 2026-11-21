@@ -36,25 +36,9 @@ flowchart LR
     J --> K[Dashboard · city ranking<br/>ward × week heatmap · validation]
 ```
 
-**Inference path (per user request):**
-
-```mermaid
-sequenceDiagram
-    actor User
-    participant UI as Streamlit UI
-    participant FS as Feature table
-    participant M as joblib model
-    User->>UI: city, ward, as-of week, horizon (1–4)
-    UI->>FS: lookup (ward_id, date, horizon_weeks)
-    FS-->>UI: engineered feature row
-    UI->>M: model.predict(X)
-    M-->>UI: predicted weekly cases
-    UI->>UI: tier from ward thresholds<br/>interval from residuals<br/>occlusion driver deltas
-    UI-->>User: risk card, forecast, drivers, heatmap
-```
-
-Nothing in the inference path calls the network. The dataset and model are committed to the
-repository, so a fresh clone can launch the app offline.
+The inference path is local: feature-table lookup → `model.predict(X)` → tier from ward
+thresholds, interval from validation residuals, and occlusion driver deltas. Nothing in this path
+calls the network; the dataset and model are committed, so a fresh clone launches offline.
 
 ---
 
@@ -155,21 +139,11 @@ and does not require a second model.
 
 **Experimental ensemble (not shipped).** A separate R&D notebook in
 `experiments/synthetic_ensemble/` explores a 5-model stack (LightGBM, XGBoost, CatBoost, Random
-Forest, Extra Trees + Ridge meta-learner). It is deliberately excluded from the live app because:
-
-- it was trained on a **synthetic** 10-ward × 52-week benchmark, not the official dataset;
-- its target is **same-week** cases, not a 2–4 week future window;
-- its tiers are global `<20/<50/<100`, which never reach High/Critical on the real case scale;
-- its feature names and interaction columns do not match the app's feature contract;
-- loading it requires LightGBM/XGBoost/CatBoost, which would add substantial install time and
-  memory for no proven real-data gain;
-- its meta-learner is fit on in-sample base predictions and its bootstrap intervals use training
-  residuals, so the synthetic metrics are optimistic and the intervals are not calibrated.
-
-A future real-data version would ingest `data/raw/dengue_weather.csv`, build per-ward future
-targets for horizons 1–4, use out-of-fold meta-features, export the same artifact contract, and
-prove the dependency budget. Until then, the shipped engine remains the compact real-data model
-above. The experiment is kept for transparency, not as a fallback.
+Forest, Extra Trees + Ridge). It is excluded from the app because it was trained on a **synthetic**
+10-ward × 52-week benchmark with a **same-week** target, uses global `<20/<50/<100` tiers, needs
+heavy LightGBM/XGBoost/CatBoost dependencies, and its meta-learner is fit on in-sample base
+predictions. It is retained for transparency; a real-data version would need per-ward future
+targets, out-of-fold meta-features, the app's feature contract and per-ward thresholds.
 
 ---
 
@@ -197,40 +171,12 @@ it never falls back to hard-coded predictions.
 
 ## 7. Limitations and production path
 
-- **Historical, not live.** The prototype uses the historical ward-week record. Production would
-  add a cached daily weather adapter, a scheduled retrain, and model/version monitoring.
-- **Weekly resolution.** This matches the surveillance data; daily lags would need finer input.
-- **No ward geometry.** The dataset has no coordinates or polygons, so the heatmap is a
-  ward × week matrix rather than a geographic map. Adding ward boundaries is the next visual
-  step, not a modeling change.
-- **Decision support, not diagnosis.** The tier is a planning signal for vector control and
-  hospital readiness; it is not a clinical test.
-- **Distribution shift.** A new serotype, reporting change or large population movement can
-  break the learned relationships; the validation dashboard and a retrain schedule are the
-  safeguards.
+- **Historical, weekly, no ward geometry.** The prototype uses the historical ward-week record;
+  a production path adds a cached live-weather adapter, a retrain schedule and ward boundaries.
+- **Decision support, not diagnosis.** Risk tiers are a planning signal for vector control and
+  hospital readiness, not a clinical test.
+- **Distribution shift.** A new serotype, reporting change or population movement can break the
+  learned relationships; the validation dashboard and retraining are the safeguards.
 
----
-
-## 8. Repository map
-
-The Streamlit shell is a thin router over four pages. Only the **Dashboard** page imports
-pandas/scikit-learn and loads the feature table/model; Home, Purpose and About are static and
-load instantly. The `?page=home|purpose|dashboard|about` query parameter keeps links shareable.
-
-```text
-app.py                    thin router: theme, nav, page dispatch
-ui/theme.py               palette + CSS variables + global animations
-ui/components.py          navbar, footer, navigation helpers
-ui/pages/                 Home, Purpose, Dashboard, About
-src/config.py             paths, labels, tier palette
-src/data_access.py        cached raw/feature loaders + ward context
-src/inference.py          artifact loading, prediction, tiers, intervals, occlusion
-src/charts.py             Plotly gauge, forecast, drivers, heatmap, validation
-src/data/build_features.py  real-data feature pipeline
-src/model/train.py        training + artifact export
-data/raw/                 bundled official dataset
-data/processed/           engineered feature table
-models/                   joblib model + schema + thresholds + metrics + test predictions
-scripts/fetch_data.py     one-time dataset refresh
-scripts/verify_lags.py    independent lag / leakage checks
-```
+The Streamlit shell is a thin router over four pages; only the **Dashboard** page imports
+pandas/scikit-learn and loads the feature table/model. See `README.md` for the full repository map.

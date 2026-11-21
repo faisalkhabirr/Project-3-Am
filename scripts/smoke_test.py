@@ -39,7 +39,7 @@ def main() -> int:
         print("\nCannot run the smoke test until the artifacts exist.", file=sys.stderr)
         return 1
 
-    raw = data.load_raw()
+    data.load_raw()
     meta = data.load_ward_meta()
     features = data.load_features()
     bundle = inference.load_bundle()

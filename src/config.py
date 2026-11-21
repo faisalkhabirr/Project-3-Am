@@ -26,10 +26,6 @@ TEST_PREDICTIONS_PATH = MODEL_DIR / "test_predictions.csv"
 # ---------------------------------------------------------------------------
 APP_TITLE = "Aedes Sentinel"
 APP_TAGLINE = "Ward-level dengue early warning for Bangladesh"
-DATA_SOURCE = (
-    "Weekly ward-level weather and dengue surveillance, 2016–2025 · "
-    "Hackathon Phase 1 dataset"
-)
 
 # ---------------------------------------------------------------------------
 # Domain constants
@@ -47,8 +43,6 @@ CITY_ORDER = [
     "Gazipur",
     "Narayanganj",
 ]
-
-TIER_ORDER = ["Low", "Medium", "High", "Critical"]
 
 TIER_COLORS = {
     "Low": "#2F7D4A",

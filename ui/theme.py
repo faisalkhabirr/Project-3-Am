@@ -884,6 +884,7 @@ header[data-testid="stHeader"], #MainMenu, footer {
   .home-hero-right { max-width: 420px; }
   .purpose-grid { grid-template-columns: 1fr; }
   .nav-note { display: none; }
+  .st-key-topnav [data-testid="stColumn"]:last-child { display: none; }
 }
 
 @media (max-width: 780px) {
@@ -892,7 +893,25 @@ header[data-testid="stHeader"], #MainMenu, footer {
   .team-grid { grid-template-columns: 1fr; }
   .site-footer { flex-direction: column; align-items: flex-start; }
   .footer-meta { text-align: left; }
-  .st-key-topnav [data-testid="stHorizontalBlock"] { flex-wrap: wrap; }
+  .st-key-topnav [data-testid="stHorizontalBlock"] {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    gap: 2px;
+    scrollbar-width: none;
+  }
+  .st-key-topnav [data-testid="stHorizontalBlock"]::-webkit-scrollbar { display: none; }
+  .st-key-topnav [data-testid="stColumn"] {
+    flex: 0 0 auto;
+    width: auto;
+    min-width: 0;
+    justify-content: flex-start;
+  }
+  .st-key-topnav button[kind="primary"],
+  .st-key-topnav button[kind="secondary"] {
+    padding: 6px 8px !important;
+    font-size: 0.7rem !important;
+    white-space: nowrap;
+  }
 }
 """
 
