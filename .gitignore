@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+
+# Local / dev-only artifacts
+models_dev/
+data/processed_dev/
+*.log
+
+# Streamlit secrets
+.streamlit/secrets.toml
+
+# OS noise
+.DS_Store
+Thumbs.db
