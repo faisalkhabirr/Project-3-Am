@@ -213,14 +213,21 @@ it never falls back to hard-coded predictions.
 
 ## 8. Repository map
 
+The Streamlit shell is a thin router over four pages. Only the **Dashboard** page imports
+pandas/scikit-learn and loads the feature table/model; Home, Purpose and About are static and
+load instantly. The `?page=home|purpose|dashboard|about` query parameter keeps links shareable.
+
 ```text
-app.py                    Streamlit entry; tabs, controls, rendering
+app.py                    thin router: theme, nav, page dispatch
+ui/theme.py               palette + CSS variables + global animations
+ui/components.py          navbar, footer, navigation helpers
+ui/pages/                 Home, Purpose, Dashboard, About
 src/config.py             paths, labels, tier palette
 src/data_access.py        cached raw/feature loaders + ward context
 src/inference.py          artifact loading, prediction, tiers, intervals, occlusion
 src/charts.py             Plotly gauge, forecast, drivers, heatmap, validation
-src/data/build_features.py  feature pipeline (ML owner)
-src/model/train.py        training + artifact export (ML owner)
+src/data/build_features.py  real-data feature pipeline
+src/model/train.py        training + artifact export
 data/raw/                 bundled official dataset
 data/processed/           engineered feature table
 models/                   joblib model + schema + thresholds + metrics + test predictions

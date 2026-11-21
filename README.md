@@ -10,6 +10,11 @@ serves a live risk tier and driver breakdown for every ward.
 
 > Built for the **Hackathon Phase 1: 24-Hour Remote Qualifier — AI for Urban Dengue Outbreak**.
 
+![Aedes Sentinel landing page](docs/home.png)
+
+*Team 3AM landing page: warm visual shell, one-click entry to the dashboard, and the project's
+60-ward / 5-city / 1–4-week scope.*
+
 ![Aedes Sentinel dashboard](docs/dashboard.png)
 
 *Live dashboard: ward-level risk tier, 4-week forecast with an 80% interval, model driver
@@ -46,6 +51,22 @@ uv pip install --python .venv/bin/python -r requirements.txt
 .venv/bin/streamlit run app.py
 ```
 </details>
+
+---
+
+## The app
+
+The app has four pages, connected by the sticky pill navigation and the footer:
+
+| Page | What it does |
+|---|---|
+| **Home** | The landing page: the 2–4 week warning story, 60 wards / 5 cities / 1–4 weeks, and a one-click entry to the dashboard. |
+| **Purpose** | Why dengue early warning matters in Bangladesh, the breeding clock, hyper-local vulnerability, and who the tool helps. |
+| **Dashboard** | The working analytical page: ward risk, forecast, drivers, vulnerability, city ranking, heatmap, validation and method/cost tabs. |
+| **About Us** | Team 3AM, roles, and the project-info card (model, coverage, runtime). |
+
+The landing page opens first. Click **Open dashboard**, use the nav pill, or open
+`?page=dashboard` directly.
 
 ---
 
@@ -157,7 +178,11 @@ not comparable. The folder's README documents why it was not shipped.
 ## Repository layout
 
 ```text
-app.py                      Streamlit entry point
+app.py                      thin router: theme, nav, page dispatch
+ui/
+  theme.py                  palette, CSS variables, animations
+  components.py             navbar, footer, navigation helpers
+  pages/                    Home, Purpose, Dashboard, About
 src/
   config.py                 paths, labels, tier colours
   data_access.py            cached data loaders + ward context
@@ -173,7 +198,7 @@ models/
   feature_columns.json      ordered model inputs
   risk_thresholds.json      per-ward tier thresholds
   metrics.json              split, metrics, prediction intervals
-  test_predictions.csv      chronological holdout predictions
+  test_predictions.csv       chronological holdout predictions
 experiments/
   synthetic_ensemble/       synthetic 5-model stack (not shipped)
 scripts/
