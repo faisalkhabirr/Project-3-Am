@@ -63,11 +63,11 @@ no slides, no jump cuts. Target 2:45 so there is margin.
 
 ### 2:25–2:45 — Validation and close
 > "The Validation tab is the honest check. On the untouched 2024–2025 holdout, the model's MAE is
-> [X] and RMSE is [Y], beating the seasonal-naive and persistence baselines. Error grows with the
-> horizon, which is exactly what an early-warning tool should show. Everything runs on a laptop
-> CPU with zero external API calls. The README has the one-command launch, and ARCHITECTURE.md
-> documents the split and cost controls. Aedes Sentinel gives public-health teams the weeks they
-> need to act before the peak."
+> 1.05 and RMSE is 2.10 across horizons, beating the seasonal-naive MAE of 1.69 and persistence
+> MAE of 1.75. Error grows with the horizon, which is exactly what an early-warning tool should
+> show. Everything runs on a laptop CPU with zero external API calls. The README has the
+> one-command launch, and ARCHITECTURE.md documents the split and cost controls. Aedes Sentinel
+> gives public-health teams the weeks they need to act before the peak."
 
 ## After recording
 
