@@ -147,6 +147,11 @@ The model is trained on target weeks up to 2022, validated on 2023, and evaluate
 untouched 2024–2025 holdout. The exact values are read from `models/metrics.json` and rendered
 live in the **Validation** tab.
 
+An experimental 5-model stacking ensemble is preserved under
+[`experiments/synthetic_ensemble/`](experiments/synthetic_ensemble/). It was trained on a
+synthetic benchmark with a same-week target, so it is **not** used by the app and its metrics are
+not comparable. The folder's README documents why it was not shipped.
+
 ---
 
 ## Repository layout
@@ -158,8 +163,8 @@ src/
   data_access.py            cached data loaders + ward context
   inference.py              model loading, prediction, tiers, drivers
   charts.py                 Plotly figures
-  data/                     feature pipeline (ML owner)
-  model/                    training + artifact export (ML owner)
+  data/                     real-data feature pipeline
+  model/                    real-data training + artifact export
 data/
   raw/dengue_weather.csv    bundled official dataset
   processed/features.csv    engineered ward/week/horizon features
@@ -169,6 +174,8 @@ models/
   risk_thresholds.json      per-ward tier thresholds
   metrics.json              split, metrics, prediction intervals
   test_predictions.csv      chronological holdout predictions
+experiments/
+  synthetic_ensemble/       synthetic 5-model stack (not shipped)
 scripts/
   fetch_data.py             one-time data refresh
   verify_lags.py            independent lag/leakage sanity checks
@@ -212,11 +219,11 @@ and in the app's **Method & cost** tab.
 
 | Person | Role |
 |---|---|
-| **Faisal Khabir** | Dashboard/UI, inference integration, validation views, architecture, demo, repo delivery |
-| **ML teammate** | Data processing, multi-week lag pipeline, model training, artifact export |
+| **Faisal Khabir** (`faisalkhabirr`) | Dashboard/UI, real-data feature pipeline, inference integration, validation views, architecture, demo, repo delivery |
+| **Muhammad Anamur Rashid** (`loser-2-o`) | ML exploration: lag-feature experiments, 5-model ensemble notebook, synthetic benchmark, model packaging |
 
 Git history is intentionally incremental across the build window. Feature, model and UI work
-land in separate commits from each contributor.
+land in separate commits from both contributors.
 
 ---
 
@@ -228,13 +235,18 @@ judging criteria.
 | Tool / API | Used for | Runtime dependency? |
 |---|---|---|
 | **OpenCode (DeepSeek V4.1 Flash)** | Coding assistant: Streamlit dashboard, data-access/inference modules, documentation, integration review | No |
+| **Gemini Notebook / NotebookLM (Google)** | Analyzing the hackathon brief and rubric, drafting architecture rationale, rubric-compliance checks, Git workflow assistance | No |
+| **Claude (Anthropic)** | Feature-lag pipeline logic, ML code refactoring, Streamlit UI design structure | No |
+| **ChatGPT (OpenAI)** | Feature-lag pipeline logic, ML code refactoring, Streamlit UI design structure | No |
+| **Google Colab (T4 GPU)** | Development environment for the experimental ensemble notebook | No |
 | **Google Sheets `gviz` CSV endpoint** | One-time download of the official hackathon dataset | No — CSV is bundled |
+| **LightGBM / XGBoost / CatBoost** | Experimental synthetic ensemble only; **not used by the shipped app** | No — experiment only |
 | **scikit-learn / pandas / numpy / joblib** | Training and local inference libraries | Local libraries, no API |
 | **Streamlit / Plotly** | Dashboard and charts | Local libraries, no API |
 
 No LLM API is called when the app runs. No paid inference endpoint, map service, weather API or
-database is used at runtime. If any teammate used an additional assistant during model
-development, it is listed here before submission.
+database is used at runtime. All AI assistants and external services used by either team member
+are listed above.
 
 ---
 
