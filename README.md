@@ -10,6 +10,11 @@ serves a live risk tier and driver breakdown for every ward.
 
 > Built for the **Hackathon Phase 1: 24-Hour Remote Qualifier — AI for Urban Dengue Outbreak**.
 
+![Aedes Sentinel dashboard](docs/dashboard.png)
+
+*Live dashboard: ward-level risk tier, 4-week forecast with an 80% interval, model driver
+breakdown and vulnerability context.*
+
 ---
 
 ## Quickstart (under 3 minutes)
