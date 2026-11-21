@@ -179,8 +179,20 @@ Aedes Sentinel is designed for a public-health office laptop, not a GPU cluster:
 - **No LLM in the product loop** — no token spend during a prediction.
 - Typical warm inference: **under 300 ms** per prediction on CPU.
 
-The detailed control table is in [ARCHITECTURE.md](ARCHITECTURE.md#compute--api-cost-controls)
+The detailed control table is in [ARCHITECTURE.md](ARCHITECTURE.md#6-compute--api-cost-controls)
 and in the app's **Method & cost** tab.
+
+---
+
+## Troubleshooting
+
+| Symptom | Fix |
+|---|---|
+| `streamlit: command not found` | Activate the venv first: `source .venv/bin/activate` (Windows: `.venv\Scripts\activate`). |
+| Port 8501 already in use | `streamlit run app.py --server.port 8502`. |
+| "Model handoff pending" banner | The serialized artifacts are missing; restore `models/` and `data/processed/features.csv` from the repo, or run the training pipeline. |
+| App starts but no data | Confirm `data/raw/dengue_weather.csv` exists; re-run `python scripts/fetch_data.py`. |
+| Slow first page load | The first run imports scikit-learn and loads the model; subsequent interactions are cached and fast. |
 
 ---
 

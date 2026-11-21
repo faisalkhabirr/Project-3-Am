@@ -22,8 +22,9 @@ no slides, no jump cuts. Target 2:45 so there is margin.
    - Horizon: **+3 weeks**
 5. Silence notifications (Focus Assist / Do Not Disturb), close Slack/WhatsApp, use a headset
    mic, and check the input level.
-6. Recorder: OBS Studio (Window Capture + Mic) or Windows Game Bar (`Win+G`). Record the
-   browser window only. Do **not** add slides, titles, or edits.
+6. Recorder: **Windows Game Bar** (`Win+Alt+R` to start/stop; enable the microphone in
+   Settings → Gaming → Captures) or OBS Studio (Window Capture + Mic). Record the browser
+   window only. Do **not** add slides, titles, or edits.
 
 ## Script (target 2:45)
 
@@ -44,10 +45,10 @@ no slides, no jump cuts. Target 2:45 so there is margin.
 > is sixty-seven out of one hundred."
 
 ### 1:05–1:35 — Driver breakdown
-> "The driver breakdown shows why. Humidity over the last four weeks and rainfall in the two-to-
-> four week lag window are pushing the forecast up, alongside seasonality. These bars are computed
-> locally by resetting each driver to its typical value and re-running the model. The tier and
-> interval come from the model and this ward's own thresholds, not a static rule."
+> "The driver breakdown shows why. Seasonality and humidity over the last four weeks are
+> pushing the forecast up, alongside rainfall in the two-to-four week lag window. These bars
+> are computed locally by resetting each driver to its typical value and re-running the model.
+> The tier and interval come from the model and this ward's own thresholds, not a static rule."
 
 ### 1:35–2:00 — Weather lag and vulnerability
 > "This chart is the biological clock: rainfall today feeds cases two to four weeks later. The
