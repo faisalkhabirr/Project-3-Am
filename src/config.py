@@ -51,23 +51,23 @@ CITY_ORDER = [
 TIER_ORDER = ["Low", "Medium", "High", "Critical"]
 
 TIER_COLORS = {
-    "Low": "#2E7D32",
-    "Medium": "#D99000",
-    "High": "#E65100",
+    "Low": "#2F7D4A",
+    "Medium": "#C98A00",
+    "High": "#D96A1A",
     "Critical": "#B3261E",
 }
 
 TIER_BG = {
-    "Low": "#E8F5E9",
-    "Medium": "#FFF4D6",
-    "High": "#FBE9E1",
-    "Critical": "#F9E0DD",
+    "Low": "#E9F5EC",
+    "Medium": "#FFF3D6",
+    "High": "#FBE9DD",
+    "Critical": "#F7E3E0",
 }
 
 TIER_TEXT = {
-    "Low": "#1B5E20",
-    "Medium": "#8A5A00",
-    "High": "#A63C00",
+    "Low": "#1F5A34",
+    "Medium": "#7A5300",
+    "High": "#8A3F0A",
     "Critical": "#8C1D18",
 }
 

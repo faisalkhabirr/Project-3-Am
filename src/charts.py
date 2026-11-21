@@ -7,21 +7,22 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
 from . import config
+from ui.theme import PALETTE
 
-RED = "#B3261E"
-ORANGE = "#E65100"
-AMBER = "#D99000"
-GREEN = "#2E7D32"
-INK = "#18212B"
-MUTED = "#64748B"
-GRID = "#E2E8F0"
+RED = PALETTE["critical"]
+ORANGE = PALETTE["high"]
+AMBER = PALETTE["medium"]
+GREEN = PALETTE["low"]
+INK = PALETTE["ink"]
+MUTED = PALETTE["muted"]
+GRID = PALETTE["line"]
 
 TIER_SCALE = [
-    [0.00, "#E8F5E9"],
-    [0.25, "#FFF4D6"],
-    [0.50, "#FBE9E1"],
-    [0.75, "#F4A582"],
-    [1.00, "#B3261E"],
+    [0.00, "#EEF7F0"],
+    [0.25, "#FFF3B8"],
+    [0.50, "#F6C15A"],
+    [0.75, "#E07A2E"],
+    [1.00, PALETTE["critical"]],
 ]
 
 
@@ -63,7 +64,7 @@ def risk_gauge(score: float, tier: str) -> go.Figure:
                     "showticklabels": False,
                 },
                 "bar": {"color": color, "thickness": 0.32},
-                "bgcolor": "white",
+                "bgcolor": "rgba(0,0,0,0)",
                 "borderwidth": 0,
                 "steps": [
                     {"range": [0, 25], "color": config.TIER_BG["Low"]},
