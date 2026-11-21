@@ -24,7 +24,7 @@ import pandas as pd
 import streamlit as st
 
 from . import config
-from .data_access import format_date, load_features
+from .data_access import load_features
 
 
 class ModelNotReady(RuntimeError):
@@ -100,14 +100,9 @@ def _load_bundle_cached(
 
 def load_bundle() -> dict:
     """Load the serialized model and its metadata, or raise ``ModelNotReady``."""
-    missing = [
-        str(path)
-        for path in (config.MODEL_PATH, config.FEATURE_COLUMNS_PATH)
-        if not path.exists()
-    ]
-    if missing:
+    if not config.MODEL_PATH.exists():
         raise ModelNotReady(
-            "Model artifacts are not available yet. Waiting for: " + ", ".join(missing)
+            f"Model artifacts are not available yet. Waiting for: {config.MODEL_PATH}"
         )
 
     bundle = _load_bundle_cached(
@@ -237,7 +232,16 @@ def thresholds_for(
     return value
 
 
+def _effective_thresholds(thresholds: dict[str, float]) -> dict[str, float]:
+    """Apply a half-case floor so a near-zero forecast is still Low."""
+    low = max(float(thresholds.get("low_max", 0.0)), 0.5)
+    medium = max(float(thresholds.get("medium_max", low + 1.0)), low + 1e-6)
+    high = max(float(thresholds.get("high_max", medium + 1.0)), medium + 1e-6)
+    return {"low_max": low, "medium_max": medium, "high_max": high}
+
+
 def tier_for(cases: float, thresholds: dict[str, float]) -> str:
+    thresholds = _effective_thresholds(thresholds)
     if cases <= thresholds["low_max"]:
         return "Low"
     if cases <= thresholds["medium_max"]:
@@ -249,13 +253,14 @@ def tier_for(cases: float, thresholds: dict[str, float]) -> str:
 
 def risk_index(cases: float, thresholds: dict[str, float]) -> float:
     """Map predicted cases to a 0-100 index using the ward's tier thresholds."""
-    low = max(thresholds["low_max"], 0.0)
-    medium = max(thresholds["medium_max"], low + 1e-6)
-    high = max(thresholds["high_max"], medium + 1e-6)
+    thresholds = _effective_thresholds(thresholds)
+    low = thresholds["low_max"]
+    medium = thresholds["medium_max"]
+    high = thresholds["high_max"]
     if cases <= 0:
         return 0.0
     if cases <= low:
-        return 25.0 * cases / low if low > 0 else 0.0
+        return 25.0 * cases / low
     if cases <= medium:
         return 25.0 + 25.0 * (cases - low) / (medium - low)
     if cases <= high:

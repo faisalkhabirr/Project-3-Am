@@ -443,7 +443,7 @@ with risk_tab:
             st.markdown("<div class='card-label'>Risk forecast</div>", unsafe_allow_html=True)
             if pred is not None:
                 st.plotly_chart(
-                    charts.risk_gauge(pred.risk_index, pred.tier, pred.cases),
+                    charts.risk_gauge(pred.risk_index, pred.tier),
                     width="stretch",
                     theme=None,
                     config={"displayModeBar": False},
@@ -621,6 +621,10 @@ with risk_tab:
                     }
                 )
                 table["Ward"] = table["Ward"].str.replace("_", " ", regex=False)
+                tier_emoji = {"Low": "🟢", "Medium": "🟡", "High": "🟠", "Critical": "🔴"}
+                table["Tier"] = table["Tier"].map(
+                    lambda tier: f"{tier_emoji.get(tier, '⚪')} {tier}"
+                )
                 st.dataframe(
                     table,
                     hide_index=True,
@@ -635,6 +639,10 @@ with risk_tab:
                         "Sanitation": st.column_config.NumberColumn(format="%.2f"),
                         "Density /km²": st.column_config.NumberColumn(format="%d"),
                     },
+                )
+                st.caption(
+                    "Risk index is relative to each ward's own thresholds; predicted cases "
+                    "are comparable across wards."
                 )
             else:
                 st.info("No batch predictions available for this city/week.")

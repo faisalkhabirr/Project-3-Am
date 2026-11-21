@@ -29,34 +29,38 @@ def _style(fig: go.Figure, height: int = 340, margin: dict | None = None) -> go.
     fig.update_layout(
         template="plotly_white",
         height=height,
-        margin=margin or dict(l=10, r=10, t=42, b=10),
+        margin=margin or dict(l=10, r=10, t=42, b=52),
         font=dict(family="Inter, system-ui, -apple-system, Segoe UI, sans-serif", color=INK, size=12),
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(0,0,0,0)",
         hoverlabel=dict(bgcolor="white", font_size=12, bordercolor=GRID),
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, x=0, xanchor="left"),
+        legend=dict(
+            orientation="h",
+            yanchor="top",
+            y=-0.16,
+            x=0,
+            xanchor="left",
+        ),
     )
     fig.update_xaxes(showgrid=False, zeroline=False, linecolor=GRID)
     fig.update_yaxes(gridcolor=GRID, zeroline=False)
     return fig
 
 
-def risk_gauge(score: float, tier: str, cases: float) -> go.Figure:
+def risk_gauge(score: float, tier: str) -> go.Figure:
     color = config.TIER_COLORS.get(tier, MUTED)
     fig = go.Figure(
         go.Indicator(
             mode="gauge+number",
             value=max(0.0, min(100.0, float(score))),
             number={"suffix": "/100", "font": {"size": 34, "color": INK}},
-            title={"text": f"{tier} risk", "font": {"size": 16, "color": color}},
+            title={"text": "Risk index", "font": {"size": 15, "color": MUTED}},
             gauge={
                 "axis": {
                     "range": [0, 100],
                     "tickwidth": 0,
                     "tickcolor": MUTED,
-                    "tickvals": [12.5, 37.5, 62.5, 87.5],
-                    "ticktext": ["Low", "Medium", "High", "Critical"],
-                    "tickfont": {"size": 10, "color": MUTED},
+                    "showticklabels": False,
                 },
                 "bar": {"color": color, "thickness": 0.32},
                 "bgcolor": "white",
@@ -68,7 +72,7 @@ def risk_gauge(score: float, tier: str, cases: float) -> go.Figure:
                     {"range": [75, 100], "color": config.TIER_BG["Critical"]},
                 ],
             },
-            domain={"x": [0.05, 0.95], "y": [0.05, 0.85]},
+            domain={"x": [0.10, 0.90], "y": [0.05, 0.85]},
         )
     )
     fig.update_layout(
@@ -76,15 +80,6 @@ def risk_gauge(score: float, tier: str, cases: float) -> go.Figure:
         margin=dict(l=16, r=16, t=10, b=10),
         paper_bgcolor="rgba(0,0,0,0)",
         font=dict(family="Inter, system-ui, sans-serif", color=INK),
-    )
-    fig.add_annotation(
-        text=f"{cases:.1f} predicted cases",
-        x=0.5,
-        y=-0.02,
-        xref="paper",
-        yref="paper",
-        showarrow=False,
-        font=dict(size=12, color=MUTED),
     )
     return fig
 
@@ -229,7 +224,7 @@ def rainfall_history_figure(history: pd.DataFrame, as_of: pd.Timestamp) -> go.Fi
     fig.update_layout(
         title=dict(text="Rainfall, lag window and reported cases", font=dict(size=15, color=INK)),
         yaxis=dict(title="Rainfall (mm)", rangemode="tozero"),
-        yaxis2=dict(title="Cases", rangemode="tozero", showgrid=False),
+        yaxis2=dict(title="Cases", rangemode="tozero", showgrid=False, tickformat=".0f"),
     )
     return _style(fig, height=330)
 
@@ -306,17 +301,18 @@ def validation_figure(test: pd.DataFrame, horizon: int | None = None) -> go.Figu
     data = test.copy()
     if horizon is not None and config.HORIZON_COL in data.columns:
         data = data.loc[data[config.HORIZON_COL] == horizon]
-    if config.DATE_COL not in data.columns:
+    date_col = "target_date" if "target_date" in data.columns else config.DATE_COL
+    if date_col not in data.columns:
         return _style(go.Figure(), height=320)
     agg = (
-        data.groupby(config.DATE_COL, as_index=False)[["y_true", "y_pred"]]
+        data.groupby(date_col, as_index=False)[["y_true", "y_pred"]]
         .sum()
-        .sort_values(config.DATE_COL)
+        .sort_values(date_col)
     )
     fig = go.Figure()
     fig.add_trace(
         go.Scatter(
-            x=agg[config.DATE_COL],
+            x=agg[date_col],
             y=agg["y_true"],
             name="Actual cases",
             line=dict(color=INK, width=2),
@@ -325,7 +321,7 @@ def validation_figure(test: pd.DataFrame, horizon: int | None = None) -> go.Figu
     )
     fig.add_trace(
         go.Scatter(
-            x=agg[config.DATE_COL],
+            x=agg[date_col],
             y=agg["y_pred"],
             name="Predicted cases",
             line=dict(color=RED, width=2, dash="dot"),
