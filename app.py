@@ -752,6 +752,19 @@ with validation_tab:
         else:
             k4.metric("Persistence MAE", "—", help="Baseline not exported yet")
 
+        overall_mae = metrics.get("mae") if isinstance(metrics, dict) else None
+        overall_rmse = metrics.get("rmse") if isinstance(metrics, dict) else None
+        if overall_mae is None:
+            overall_mae = float((test["y_true"] - test["y_pred"]).abs().mean())
+            overall_rmse = float(
+                np.sqrt(((test["y_true"] - test["y_pred"]) ** 2).mean())
+            )
+        st.caption(
+            f"Overall across horizons 1–4: MAE {float(overall_mae):.2f} · "
+            f"RMSE {float(overall_rmse):.2f}. The cards above show the selected "
+            f"+{int(selected)} week horizon."
+        )
+
         st.plotly_chart(
             charts.validation_figure(test, horizon=selected),
             width="stretch",

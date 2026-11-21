@@ -131,7 +131,7 @@ python -m src.data.build_features     # raw CSV → data/processed/features.csv
 python -m src.model.train             # features → models/ + metrics.json
 ```
 
-| Metric (2024–2025 holdout) | Value |
+| Metric (2024–2025 holdout, all horizons) | Value |
 |---|---|
 | MAE | **1.05** cases / ward-week |
 | RMSE | **2.10** cases / ward-week |

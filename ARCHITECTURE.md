@@ -93,9 +93,9 @@ asserts they match the feature table, and flags any row whose target date crosse
 
 | Split | Target weeks | Purpose |
 |---|---|---|
-| **Train** | 2016-01-04 → 2022-12-31 | Fit the model and ward thresholds |
-| **Validation** | 2023-01-02 → 2023-12-31 | Model comparison, residual intervals, early stopping |
-| **Test** | 2024-01-01 → 2025-12-29 | Untouched chronological holdout for the reported metrics |
+| **Train** | 2016-01-11 → 2022-12-26 · 364 weeks | Fit the model and ward thresholds |
+| **Validation** | 2023-01-02 → 2023-12-25 · 52 weeks | Model comparison, residual intervals |
+| **Test** | 2024-01-01 → 2025-12-29 · 105 weeks | Untouched chronological holdout for the reported metrics |
 
 Rows are split by **target date**, so a training row cannot predict into the validation or test
 window. There is no shuffling and no random `train_test_split`. The test set is used once, after
