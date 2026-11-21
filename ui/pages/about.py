@@ -10,11 +10,6 @@ TEAM = (
         "handle": "faisalkhabirr",
         "email": "faisalkhabir@gmail.com",
         "affiliation": "Student, East Delta University, Chattogram",
-        "role": "Dashboard & inference",
-        "bio": (
-            "Builds the local-first dashboard, the inference layer between the model and "
-            "the ward decision, the validation views and the delivery docs."
-        ),
     },
     {
         "initials": "MR",
@@ -22,11 +17,6 @@ TEAM = (
         "handle": "loser-2-o",
         "email": "muhammadanamurrashid@gmail.com",
         "affiliation": "Student, East Delta University, Chattogram",
-        "role": "ML & experimentation",
-        "bio": (
-            "Explores ensemble models and multi-week lag features, and packages the "
-            "experimental pipeline that informed the final model choice."
-        ),
     },
     {
         "initials": "TJ",
@@ -34,10 +24,6 @@ TEAM = (
         "handle": "tanvir-jonayed",
         "email": "tanvirjonayed772@gmail.com",
         "affiliation": "Student, East Delta University, Chattogram",
-        "role": "Team collaborator",
-        "bio": (
-            "Collaborator on Team 3AM, supporting the team's project work and final delivery."
-        ),
     },
 )
 
@@ -65,8 +51,6 @@ def render() -> None:
   <div class="member-name">{member['name']}</div>
   <div class="member-handle">@{member['handle']}</div>
   <div class="member-affiliation">{member['affiliation']}</div>
-  <div class="member-role">{member['role']}</div>
-  <div class="member-bio">{member['bio']}</div>
   <div class="member-links">
     <a href="https://github.com/{member['handle']}" target="_blank" rel="noopener">GitHub ↗</a>
     <a href="mailto:{member['email']}">{member['email']}</a>
