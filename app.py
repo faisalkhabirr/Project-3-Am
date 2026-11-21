@@ -674,8 +674,8 @@ with risk_tab:
                     key=f"heatmap_{city}_{as_of.date()}",
                 )
                 st.caption(
-                    "Predicted weekly cases by ward and forecast week. Darker cells are "
-                    "higher-risk wards/weeks; hover for exact values."
+                    "Predicted weekly cases by ward and forecast week. The color scale is absolute "
+                    "(cases), so a light week stays light even when it is the highest in its city."
                 )
             else:
                 st.info("No heatmap data available for this city/week.")

@@ -267,6 +267,8 @@ def ward_ranking_figure(batch: pd.DataFrame, top_n: int = 12) -> go.Figure:
 def heatmap_figure(matrix: pd.DataFrame) -> go.Figure:
     """matrix: index=ward_id, columns=target dates, values=predicted cases."""
     z = matrix.to_numpy(dtype=float)
+    finite = z[np.isfinite(z)]
+    zmax = max(12.0, float(finite.max())) if finite.size else 12.0
     x = [pd.Timestamp(c).strftime("%d %b") for c in matrix.columns]
     y = [str(w).replace("_", " ") for w in matrix.index]
     custom = np.empty(z.shape, dtype=object)
@@ -278,6 +280,8 @@ def heatmap_figure(matrix: pd.DataFrame) -> go.Figure:
             z=z,
             x=x,
             y=y,
+            zmin=0,
+            zmax=zmax,
             colorscale=TIER_SCALE,
             colorbar=dict(title="Cases", thickness=12, len=0.7),
             text=custom,
