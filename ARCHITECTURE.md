@@ -21,20 +21,7 @@ wards on rainfall alone.
 
 ## 2. System data flow
 
-```mermaid
-flowchart LR
-    A[Official Google Sheet] -->|one-time gviz CSV| B[(data/raw/<br/>dengue_weather.csv)]
-    B --> C[Ingest & schema checks]
-    C --> D[Feature pipeline<br/>group by ward_id<br/>1–4 week lags<br/>rolling rainfall<br/>seasonality + vulnerability]
-    D --> E[(data/processed/<br/>features.csv)]
-    E --> F[Chronological split<br/>train ≤2022 · val 2023 · test 2024–25]
-    F --> G[Train + validate]
-    G --> H[Serialized artifacts<br/>joblib · feature schema<br/>tier thresholds · metrics]
-    E --> I[Streamlit inference]
-    H --> I
-    I --> J[Risk tier + interval<br/>driver contributions]
-    J --> K[Dashboard · city ranking<br/>ward × week heatmap · validation]
-```
+![System data flow](image.png)
 
 The inference path is local: feature-table lookup → `model.predict(X)` → tier from ward
 thresholds, interval from validation residuals, and occlusion driver deltas. Nothing in this path
