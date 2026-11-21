@@ -569,8 +569,18 @@ header[data-testid="stHeader"], #MainMenu, footer {
 
 .member-name { font-weight: 850; color: var(--ink); font-size: 1rem; }
 .member-handle { color: var(--muted); font-size: 0.74rem; margin-top: 2px; }
+.member-affiliation { color: var(--muted); font-size: 0.72rem; margin-top: 4px; }
 .member-role { color: var(--charcoal); font-size: 0.78rem; font-weight: 700; margin-top: 10px; }
 .member-bio { color: #5F5F5F; font-size: 0.82rem; line-height: 1.55; margin-top: 4px; }
+.member-links { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 12px; font-size: 0.72rem; }
+.member-links a {
+  color: var(--ink);
+  text-decoration: none;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 1px;
+  overflow-wrap: anywhere;
+}
+.member-links a:hover { border-color: var(--charcoal); }
 
 .project-card {
   background: var(--charcoal);

@@ -389,14 +389,13 @@ and in the app's **Method & cost** tab.
 |---|---|
 | **Faisal Khabir** ([@faisalkhabirr](https://github.com/faisalkhabirr)) | Dashboard/UI, real-data feature pipeline, inference integration, validation views, architecture, demo, repo delivery |
 | **Muhammad Anamur Rashid** ([@loser-2-o](https://github.com/loser-2-o)) | ML exploration: lag-feature experiments, 5-model ensemble notebook, synthetic benchmark, model packaging |
-
-<!-- Third teammate: add a row here when their name/handle/role/bio are confirmed. -->
+| **Tanvir Jonayed** ([@tanvir-jonayed](https://github.com/tanvir-jonayed)) | Team collaborator · Student, East Delta University, Chattogram |
 
 Git history is incremental across the build window, with feature, model, notebook and UI work in
 separate commits. See the [commit history](https://github.com/faisalkhabirr/Project-3-Am/commits/main)
 and the contributor graph.
 
-The **About Us** page mirrors this table; keep both in sync when the roster is finalized.
+The **About Us** page mirrors this table, including the GitHub and email links.
 
 ---
 
@@ -417,7 +416,7 @@ criteria. AI-assisted code was reviewed and tested by the team before submission
 | **scikit-learn / pandas / numpy / joblib** | Training and local inference libraries | Local libraries, no API |
 | **Streamlit / Plotly** | Dashboard and charts | Local libraries, no API |
 
-<!-- Add any assistant/API used by the third teammate before submission. -->
+<!-- Add any assistant/API used by Tanvir Jonayed before submission. -->
 
 No LLM API is called when the app runs. No paid inference endpoint, map service, weather API or
 database is used at runtime. All AI assistants and external services used by the team are listed

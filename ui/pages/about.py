@@ -8,6 +8,8 @@ TEAM = (
         "initials": "FK",
         "name": "Faisal Khabir",
         "handle": "faisalkhabirr",
+        "email": "faisalkhabir@gmail.com",
+        "affiliation": "Student, East Delta University, Chattogram",
         "role": "Dashboard & inference",
         "bio": (
             "Builds the local-first dashboard, the inference layer between the model and "
@@ -18,13 +20,25 @@ TEAM = (
         "initials": "MR",
         "name": "Muhammad Anamur Rashid",
         "handle": "loser-2-o",
+        "email": "muhammadanamurrashid@gmail.com",
+        "affiliation": "Student, East Delta University, Chattogram",
         "role": "ML & experimentation",
         "bio": (
             "Explores ensemble models and multi-week lag features, and packages the "
             "experimental pipeline that informed the final model choice."
         ),
     },
-    # Add the third collaborator card here when their name/handle/role are confirmed.
+    {
+        "initials": "TJ",
+        "name": "Tanvir Jonayed",
+        "handle": "tanvir-jonayed",
+        "email": "tanvirjonayed772@gmail.com",
+        "affiliation": "Student, East Delta University, Chattogram",
+        "role": "Team collaborator",
+        "bio": (
+            "Collaborator on Team 3AM, supporting the team's project work and final delivery."
+        ),
+    },
 )
 
 
@@ -35,9 +49,9 @@ def render() -> None:
   <div class="page-kicker">About us</div>
   <h1 class="page-title">Built by Team 3AM.</h1>
   <p class="page-sub">
-    A small team building a local-first dengue early-warning system for Bangladesh.
-    The shipped dashboard runs entirely on a laptop, with no external API calls and
-    no patient data.
+    We are three students at East Delta University, Chattogram, building a local-first
+    dengue early-warning system for Bangladesh. The shipped dashboard runs entirely on a
+    laptop, with no external API calls and no patient data.
   </p>
 </div>
 """,
@@ -50,8 +64,13 @@ def render() -> None:
   <div class="avatar">{member['initials']}</div>
   <div class="member-name">{member['name']}</div>
   <div class="member-handle">@{member['handle']}</div>
+  <div class="member-affiliation">{member['affiliation']}</div>
   <div class="member-role">{member['role']}</div>
   <div class="member-bio">{member['bio']}</div>
+  <div class="member-links">
+    <a href="https://github.com/{member['handle']}" target="_blank" rel="noopener">GitHub ↗</a>
+    <a href="mailto:{member['email']}">{member['email']}</a>
+  </div>
 </div>
 """
         for index, member in enumerate(TEAM)
