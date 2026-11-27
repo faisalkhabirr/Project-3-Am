@@ -185,13 +185,202 @@ assumption is documented in the module docstring and in Q&A.
 
 **Offline proof.** `python scripts/offline_check.py` blocks sockets, then runs forecast →
 allocation → routing → assistant → simulation → dispatch to completion. It is the live
-kill-switch test.
+kill-switch test. Key output: `PASS — forecasting, allocation, routing, assistant, simulation
+and dispatch ran offline.`
 
 **Accuracy proof.** `python scripts/verify_accuracy.py` prints per-horizon MAE/RMSE, bias and
 empirical 80% interval coverage, and exits non-zero if the model fails to beat either baseline
 or if coverage leaves the 75–85% band.
 
 ---
+## Five Phase 2 functional requirements
+
+### 1. Constrained Resource Allocation Engine
+**Working procedure.** Converts predicted dengue cases into exact supply allocations (saline bags, diagnostic kits, hospital beds) and derived vector-control crew assignments. Three deliberate steps: (a) Protected floor — every ward receives a minimum 10% share of its required supply. (b) Priority water-filling — remaining stock allocated in strict priority order, where priority = 0.65 × tier_rank + 0.35 × normalized population density. (c) Integer units — all supplies are whole bags/kits/beds and crews are people; never exceeds available stock. The function is pure and deterministic: same inputs → same table. No Streamlit, no network, no solver.
+
+**Supply conversion** (verified row-for-row on all 31,320 onsite rows):
+- `saline_bags_needed = round(31/13 × cases)` ≈ 2.385 bags per case
+- `diagnostic_kits_needed = round_half_down(7/6 × cases)` ≈ 1.167 kits per case
+- `hospital_beds_required = round_half_down(0.3 × cases)` = 30% admission rate
+
+**Select outputs** (60 wards, 60% stock, 8 crews):
+- 31 of 60 wards have a supply gap
+- 749 of 1,249 saline bags available
+- 58 of 60 wards short on crews
+
+**Unit tests:** 17 allocation tests pass (conservation/caps, monotonicity, priority-gets-covered-first, crew bottleneck, zero-stock validation).
+
+### 2. Hospital Surge & Cross-Ward Overflow Routing
+**Working procedure.** Identifies wards where projected bed demand exceeds local capacity and routes overflow patients to lower-burden wards **inside the same city pool**. Transfers never cross city boundaries (Dhaka North, Dhaka South, Chattogram, Gazipur, Narayanganj are independent referral systems). `derive_bed_capacity()` builds a planning baseline from each ward's historical 75th-percentile weekly bed demand (minimum 2 beds). The UI exposes a capacity multiplier for stress-testing.
+
+**Select outputs** (default 1.20× capacity multiplier):
+- 7 intra-city transfers (2 into Dhaka North)
+- 0 unrouted beds
+- No escalated cities
+
+**Unit tests:** 5 routing tests pass (routes-only-inside-city, capacity_scaling, derive_capacity-minimum-2-beds).
+
+### 3. "What-If" Vector Control Impact Simulator
+**Working procedure.** Counterfactual (not percentage toggle). For every simulated week: (a) takes real feature row, (b) rewrites case-history features with the arm's simulated history (larvicide → breeding-habitat features; fogging → transmission-pressure features), (c) applies intervention's feature-level effect, (d) re-runs the serialized HistGradientBoostingRegressor, (e) feeds prediction back into next week's case lags. Two arms (baseline vs. intervention) diverge through the same model the dashboard uses. Efficacy curves are conservative: fogging acts quickly with short residual; larvicide builds over 2–3 weeks and lasts longer.
+
+**Select outputs** (2 larvicide crews × 3 Dhaka North wards × 4 weeks):
+- Top ward prevents ~5.7 cases over 4 weeks
+- 3-ward package prevents ~12.1 cases
+- ~2.8 cases prevented per crew
+- Zero crews reproduces baseline exactly (unit-test verified)
+
+**Unit tests:** 3 simulation tests pass (crew_factor, batch_intervals_are_available, zero_crews_is_identity_and_effect_is_positive).
+
+### 4. Actionable Multi-Channel Dispatch Notifications
+**Working procedure.** Pure string/HTML templates; no LLM, no network, no templating engine. Same values produce same SMS, WhatsApp message and printable brief. Three output formats per ward: (a) SMS ≤160 characters (contains DEF code, ward, cases, saline/kits/beds, crews, deficit, overflow), (b) WhatsApp message formatted for phone, (c) Printable HTML brief (self-contained, ready for commissioner's printer, with "Print this brief" button). `scenario.json` in `/exports/` records exact inputs (stock fraction, crew count, capacity multiplier, required/available totals, deficits, bed demand/capacity, intra-city transfer list).
+
+**Select outputs** (example — DNCC_Ward_12 at 60% stock, 8 crews, 1.20× capacity):
+- SMS: `DEF DNCC Ward 12 14 cases Saline 26/34 Kits 17/17 Beds 4/4 Crews 2/3 Deficit saline 8`
+- WhatsApp: Full formatted message with ward details
+- HTML brief: Self-contained printable page with tables and print button
+- 15 export files generated; `scenario.json` captures full scenario state
+
+**Unit tests:** 3 dispatch tests pass (sms_limit_and_content, sms prefix "DEF", whatsapp contains ward ID, html contains `<html>`, write_exports creates 3 files + scenario.json).
+
+### 5. Offline Resilience & Deterministic Fallback
+**Working procedure.** The offline proof (`scripts/offline_check.py`) patches socket creation before loading data or the model, then exercises the full pipeline: forecast → allocation → routing → assistant → simulation → dispatch. Any accidental network dependency raises immediately as `OfflineViolation`. All modules are pure functions with no external API calls.
+
+**Select output:**
+```
+Sockets blocked. Running the full operational pipeline...
+  forecast: 60 wards · 2025-08-25 +2 weeks
+  allocate: 749 / 1249 saline bags available
+  route: 7 transfers · 0 unrouted beds
+  assistant: ward answer generated offline
+  assistant check: PASS (2 assertions)
+  simulate: 8.5 cases prevented
+  dispatch: 15 files built with sockets blocked
+
+PASS — forecasting, allocation, routing, assistant, simulation and dispatch ran offline.
+```
+
+### 6. Application-Aware Field Assistant (Chatbot)
+**How the chatbot works.** The assistant is deliberately **not** a free-form LLM. It is a deterministic intent router over the live Command Center state. Components:
+- Ward/city status from `AllocationResult` and `RoutingResult`
+- Supply answers from verified `cases_to_supplies()` conversion
+- Accuracy answers from committed holdout metrics (MAE 1.054, RMSE 2.097, 80% interval coverage 81.5%)
+- Stock what-if answers recompute allocation **without mutating** the live scenario
+- Overflow answers from routing state
+
+**Intent categories** (example questions and key outputs):
+| Intent | Example | Key output elements |
+|--------|---------|--------------------|
+| `ward` | "Why is my ward short?" | Supplies, crew gap, next action; includes sources |
+| `supply` | "How are saline bags calculated?" | `31/13` formula, `31,320` row audit, verified exact match |
+| `accuracy` | "How accurate is the forecast?" | MAE 1.054, RMSE 2.097, 81.5% interval coverage, beats seasonal-naive 1.69 and persistence 1.41 |
+| `offline` | "Does this work without internet?" | "offline", mentions "0" network calls |
+| `crews` | "Should I send crews to Ward 12?" | Required vs. allocated, simulator connection |
+| `stock_what_if` | "What if stock drops to 30%?" | Recomputes allocation at 30%, asserts live context unchanged (stock_frac stays 0.60) |
+| `verify` | "At 60% stock with 8 crews, regional saline should be 749 of 1,249, and 31 of 60 wards should have a supply gap." | PASS/FAIL table with regional saline available/required and supply-gap ward count |
+| `unknown` | "Who won the football match?" | "grounded answer", suggestions for valid questions |
+
+**Natural-language verification** (`src/operations/checks.py`). User describes a test in words; parser extracts scenario overrides and assertions; re-runs local engine; returns expected vs. actual PASS/FAIL table. Read-only: live Command scenario never mutated.
+
+**Unit tests:** 21 assistant tests pass (role normalisation, ward status, supply answer, accuracy answer, offline answer, not-an-LLM, biggest gap, stock what-if read-only, overflow answer, crew question, role changes wording not numbers, unknown fallback, natural-language check pass/fail, ward checks, invariant and accuracy checks, supply formula check, scenario without claim, deterministic behavior).
+
+---
+## Detailed system design
+
+### Architecture overview
+Aedes Sentinel is a local-first, offline-capable dengue early-warning and operations command system. The architecture consists of five stacked layers:
+
+```
++------------------------+     +----------------------+     +----------------------+
+|  Data & Feature Pipe   |→→→→→|  ML Model & Inference|→→→→→|  Command Center UI    |
+|  (build_features.py)    |     (inference.py)     |     (app.py, pages/)   |
++------------------------+     +----------------------+     +----------------------+
+          ↑                               ↑
+          |                               |
+          |                               v
++----------------------+     +----------------------+     +----------------------+
+|  Phase 2 Engines     |→→→→→|  Dispatch & Exports  |→→→→→|  Offline Proof        |
+|  (operations/)       |     (dispatch.py)      |     (scripts/)         |
++----------------------+     +----------------------+     +----------------------+
+```
+
+### Five Phase 2 engines (operations/)
+| Engine | Module | Key guarantee |
+|--------|--------|---------------|
+| **Allocation** | `allocation.py` | Pure deterministic; protected floor + priority water-filling + integer units |
+| **Routing** | `routing.py` | Same-city-only transfers; net deficits + headroom table; capacity multiplier stress-test |
+| **Simulation** | `simulation.py` | Counterfactual; rewrites features, re-runs serialized model; ROI ranking by cases prevented per crew |
+| **Dispatch** | `dispatch.py` | Template-based SMS/WhatsApp/HTML; no LLM, no network; same values → same outputs |
+| **Assistant** | `assistant.py` + `checks.py` | Deterministic intent routing; natural-language verification PASS/FAIL; read-only what-if |
+
+### Leakage controls (critical)
+- Supply columns (`saline_bags_needed`, `diagnostic_kits_needed`, `hospital_beds_required`) are **explicitly excluded** from the feature table and model inputs.
+- `tests/test_pipeline.py` guards: `SUPPLY_COLUMNS.isdisjoint(MODEL_FEATURES)`.
+- Training reads raw data but drops supply columns before feature engineering.
+- Verify: `python scripts/verify_supply_formulas.py` → PASS 31,320/31,320 exact per column.
+
+### Cost controls (per ARCHITECTURE.md)
+- **0 runtime external API calls** — dataset and model are bundled in the repo.
+- One-time data fetch (`scripts/fetch_data.py`); CSV is committed.
+- Model loading via `joblib` once per process via `st.cache_data`.
+- Data loading via `st.cache_data` keyed on file mtime; no per-widget reloads.
+- One vectorized `.predict()` for all wards × horizons.
+- Driver explanation via local single-feature occlusion; no SHAP/numba dependency.
+- **LLM usage: None in the product loop** — no tokens per prediction or render.
+- Laptop CPU hosting; no GPU, no paid endpoint, no managed database.
+- Warm model + cached data: <300 ms per prediction.
+
+### AI disclosure (README.md section)
+Every AI assistant and external API used in the project is disclosed. **No LLM API is called when the app runs.** The team used OpenCode (DeepSeek V4.1 Flash), Gemini Notebook/NotebookLM, Claude, ChatGPT, Google Colab, and Google Sheets `gviz` CSV endpoint (one-time; CSV is bundled). The shipped app uses only: scikit-learn, pandas, numpy, joblib, Streamlit, Plotly — all local libraries, no API.
+
+### System invariants
+| Invariant | Verification |
+|-----------|-------------|
+| Supply formulas match onsite dataset | `verify_supply_formulas.py` → 31,320/31,320 exact |
+| Supply targets excluded from model | `test_pipeline.py` → `SUPPLY_COLUMNS .isdisjoint(MODEL_FEATURES)` |
+| 43 unit tests pass | `python -m unittest discover` → OK |
+| Offline proof passes | `scripts/offline_check.py` → PASS with sockets blocked |
+| UI smoke test passes | `scripts/ui_smoke_test.py` → Home→Command→30%→simulation→Assistant |
+| Model beats baselines at every horizon | `verify_accuracy.py` → MAE 1.054, 80% coverage 81.5% |
+| Chronological split respected | `train.py` → train ≤2022, val 2023, test ≥2024-01-01 |
+| No lag leakage across wards | `build_features.py` → shift/rolling within ward_id only |
+| Assistant is read-only | `test_assistant.py` → `stock_what_if` preserves `context.stock_frac` |
+
+### Footer build hash
+The app footer prints the short git hash: `git rev-parse --short=12 HEAD`. This must match the `version-onsite-final` tag. After each commit, run:
+```bash
+git tag -a version-onsite-final -m "Phase 2 onsite final"
+git push origin version-onsite-final --force
+```
+Current: `99287c40cacc` (commit `2a131e7` after README update, tag force-updated).
+
+---
+## Quick reference: run all verification scripts
+
+```bash
+# Data / lag integrity
+python scripts/verify_lags.py           # PASS — feature table consistent
+
+# Model + inference path
+python scripts/smoke_test.py            # PASS — inference path healthy
+
+# Phase 2 supply audit
+python scripts/verify_supply_formulas.py # PASS, 31,320/31,320 rows per column
+
+# Forecast accuracy + calibration
+python scripts/verify_accuracy.py       # PASS, MAE 1.054, 80% coverage 81.5%
+
+# Engine invariants
+python -m unittest discover             # PASS, 43 tests
+
+# Offline kill-switch
+python scripts/offline_check.py         # PASS with sockets blocked
+
+# Headless UI flow
+python scripts/ui_smoke_test.py         # PASS Home → Command → 30% → simulation → Assistant
+
+# Dispatch samples
+python scripts/export_dispatch_samples.py # 24 files in exports/
+```
 
 ## Dataset
 
