@@ -64,9 +64,9 @@ matches the repo. The app footer prints the current short git hash; leave it vis
 > horizon, and run. This is not a hardcoded percentage: the simulator rewrites breeding-habitat
 > features, re-runs the serialized Phase 1 model, and feeds each prediction back into next week's
 > case lags. The baseline dotted line is what happens without crews; the green line is the
-> counterfactual. Here the top ward prevents about 7.6 cases over four weeks — roughly 3.8 cases
-> per crew — and the ROI table ranks every ward. Zero crews reproduces the baseline exactly, and
-> that is a unit test."
+> counterfactual. Here the top ward prevents about 5.7 cases over four weeks — roughly 2.8 cases
+> per crew — and the three-ward package prevents about 12.1 cases. The ROI table ranks every
+> ward. Zero crews reproduces the baseline exactly, and that is a unit test."
 
 ### 4:35–5:25 — Dispatch (Command → Dispatch)
 > "One click turns the allocation into field language. The SMS is under 160 characters: ward,

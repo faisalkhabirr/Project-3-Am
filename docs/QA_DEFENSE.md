@@ -15,7 +15,7 @@ questions will probe the assumptions behind allocation, routing and simulation.
 | Model holdout | MAE **1.05**, RMSE **2.10**; seasonal-naive 1.69; persistence 1.75 |
 | Allocation demo | 60% stock, 8 crews → 58/60 wards in deficit, 749/1,249 saline bags available |
 | Routing demo | 1.20× capacity → 7 intra-city transfers, 0 unrouted beds |
-| Simulator demo | 2 larvicide crews × 3 wards × 4 weeks → ~8.5 cases prevented |
+| Simulator demo | 2 larvicide crews × 3 Dhaka North wards × 4 weeks → ~12.1 cases prevented |
 | Offline proof | sockets blocked, full pipeline completes, 15 dispatch files written |
 
 ## The questions
