@@ -65,6 +65,9 @@ Script: [`docs/DEMO_SCRIPT_PHASE2.md`](docs/DEMO_SCRIPT_PHASE2.md)
 **Phase 1 remote qualifier (3:00):** _link added before submission._
 Script: [`docs/DEMO_SCRIPT.md`](docs/DEMO_SCRIPT.md)
 
+**Q&A preparation:** [`docs/QA_DEFENSE.md`](docs/QA_DEFENSE.md) — 18 rehearsed questions
+with the exact numbers and the honest assumptions behind them.
+
 <!-- Replace the lines above with unlisted YouTube/Drive links before submission. -->
 
 ---
@@ -90,6 +93,7 @@ Open **http://localhost:8501**.
 
 The dataset and serialized model are committed to the repo, so the app runs fully offline.
 There is no build step, no database, and no network call at runtime.
+Deployment and live-URL steps: [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md).
 
 > If `python` is not 3.11/3.12, create the venv explicitly:
 > `py -3.12 -m venv .venv` (Windows) or `python3.12 -m venv .venv`.
@@ -407,6 +411,8 @@ docs/
   dashboard.png             dashboard screenshot
   DEMO_SCRIPT.md            Phase 1 recording plan
   DEMO_SCRIPT_PHASE2.md     Phase 2 7:00 uncut recording plan
+  QA_DEFENSE.md             rehearsed answers and numbers for the 30-point Q&A
+  DEPLOYMENT.md             Streamlit Cloud + offline fallback runbook
 ARCHITECTURE.md             system design + validation + cost controls
 README.md
 LICENSE
