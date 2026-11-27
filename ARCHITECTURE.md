@@ -134,7 +134,38 @@ targets, out-of-fold meta-features, the app's feature contract and per-ward thre
 
 ---
 
-## 6. Compute & API cost controls
+## 6. Operational supply conversion (Phase 2)
+
+The onsite dataset adds `saline_bags_needed`, `diagnostic_kits_needed` and
+`hospital_beds_required`. Rather than estimate these from literature, we
+reverse-engineered the generator and verified the reproduction on **all 31,320
+rows** (`scripts/verify_supply_formulas.py`):
+
+| Target | Function | Rate |
+|---|---|---|
+| Saline bags | `round(31/13 × cases)` | 2.385 per case |
+| Diagnostic kits | `round_half_down(7/6 × cases)` | 1.167 per case |
+| Hospital beds | `round_half_down(0.3 × cases)` | 0.30 per case |
+
+Three properties matter for the operational layer:
+
+- **Single source of truth.** `src/operations/supplies.py` is the only place
+  cases become supply. Allocation, routing, simulation and dispatch import it,
+  so the modules cannot drift apart.
+- **No retraining.** Cases and weather are byte-identical to the Phase 1 file;
+  only deterministic targets were appended. The holdout-validated forecaster is
+  reused unchanged, preserving the reported MAE/RMSE and interval calibration.
+- **Smooth forecasts.** Fractional model predictions are converted directly,
+  so demand scales continuously before integer rounding. Zero cases map to zero
+  supply, and saline ≥ kits ≥ beds holds for every observed row.
+
+The verification script also re-checks weekly coverage, unique keys and Phase 1
+continuity, and exits non-zero on any mismatch. Unit tests cover known rows,
+monotonicity and the full onsite reproduction (`python -m unittest discover`).
+
+---
+
+## 7. Compute & API cost controls
 
 | Control | Implementation |
 |---|---|
@@ -156,7 +187,7 @@ it never falls back to hard-coded predictions.
 
 ---
 
-## 7. Limitations and production path
+## 8. Limitations and production path
 
 - **Historical, weekly, no ward geometry.** The prototype uses the historical ward-week record;
   a production path adds a cached live-weather adapter, a retrain schedule and ward boundaries.

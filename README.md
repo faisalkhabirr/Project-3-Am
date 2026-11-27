@@ -165,6 +165,25 @@ To refresh the bundled file (one-time, not needed to run the app):
 python scripts/fetch_data.py --force
 ```
 
+### Phase 2 onsite extension
+
+`data/raw/dengue_onsite.csv` is the onsite-phase dataset: the same 31,320
+ward-weeks plus three operational targets. We verified that each target is a
+**deterministic function of reported cases**, matching all 31,320 rows exactly:
+
+| Column | Verified conversion | Interpretation |
+|---|---|---|
+| `saline_bags_needed` | `round(31/13 × cases)` | ~2.385 bags per case |
+| `diagnostic_kits_needed` | `round_half_down(7/6 × cases)` | 1 test per case + confirmatory buffer |
+| `hospital_beds_required` | `round_half_down(0.3 × cases)` | 30% of cases need admission |
+
+Because cases and weather are byte-identical to Phase 1, **the validated model
+is not retrained**; it feeds the operational layer unchanged. The conversion
+lives in `src/operations/supplies.py` and is audited by
+`python scripts/verify_supply_formulas.py`.
+
+> Phase 2 build marker: **BLUEPINE**.
+
 ---
 
 ## How the pipeline works
@@ -319,10 +338,13 @@ src/
   data_access.py            cached data loaders + ward context
   inference.py              model loading, prediction, tiers, drivers
   charts.py                 Plotly figures
+  operations/               Phase 2 engines (offline, deterministic)
+    supplies.py             verified case -> saline/kits/beds conversion
   data/                     real-data feature pipeline
   model/                    real-data training + artifact export
 data/
-  raw/dengue_weather.csv    bundled official dataset
+  raw/dengue_weather.csv    bundled official Phase 1 dataset
+  raw/dengue_onsite.csv     Phase 2 dataset (+ supply targets)
   processed/features.csv    engineered ward/week/horizon features
 models/
   dengue_model.joblib       serialized estimator
@@ -335,7 +357,10 @@ experiments/
 scripts/
   fetch_data.py             one-time data refresh
   verify_lags.py            independent lag/leakage sanity checks
+  verify_supply_formulas.py row-for-row Phase 2 supply audit
   smoke_test.py             end-to-end inference check
+tests/
+  test_supplies.py          unit tests for the supply conversion
 docs/
   home.png                  landing page screenshot
   dashboard.png             dashboard screenshot
