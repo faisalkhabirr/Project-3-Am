@@ -203,7 +203,7 @@ Ward thresholds come from the **training** distribution only. Intervals come fro
 | 4 | **Multi-channel dispatch** | ≤160-char SMS, WhatsApp, printable HTML brief; allocated vs required, deficits, crews, overflow. | Allocation row, routing transfers, notes. | SMS, WhatsApp, HTML/PDF packet, `/exports`. | Consumes allocation and routing. |
 | 5 | **Offline resilience** | Socket-blocked full pipeline; no APIs; deterministic templates. | All modules and bundled assets. | Proven offline execution. | Wraps all four. |
 
-**Bonus layer:** the **Assistant** reads allocation, routing, metrics and supply math and answers in natural language. It is read-only and does not feed back into the model.
+**Bonus layer:** the **Assistant** reads allocation, routing, metrics and supply math and answers in natural language. It is read-only and does not feed back into the model. It also accepts **natural-language verification**: describe a scenario and expected result in words, and it parses the claim, re-runs the relevant engine and returns an expected-vs-actual PASS/FAIL table.
 
 ## How the five connect
 
@@ -270,7 +270,7 @@ Ward thresholds come from the **training** distribution only. Intervals come fro
 │                     │              │                         │
 │                     ├──► dispatch.py ◄── simulation.py       │
 │                     │              │                         │
-│                     └──► assistant.py ◄──────────────────────┘
+│                     └──► assistant.py ◄── checks.py          │
 │ exports/                                                     │
 └──────────────────────────────┬───────────────────────────────┘
                                ▼
@@ -294,7 +294,7 @@ Ward thresholds come from the **training** distribution only. Intervals come fro
 | **Data** | `data/raw/dengue_onsite.csv`, `src/data/build_features.py` | Ingest, validate, engineer lags and rolling features, export the feature table. |
 | **Model** | `src/model/train.py` | Chronological split, train HGB Poisson, intervals, thresholds, metrics, artifact. |
 | **Inference** | `src/inference.py` | Load model, predict one/batch, tier, risk index, interval, drivers. |
-| **Operations** | `src/operations/*` | Supplies, allocation, routing, simulation, dispatch, assistant. |
+| **Operations** | `src/operations/*` | Supplies, allocation, routing, simulation, dispatch, assistant and natural-language checks. |
 | **Interface** | `app.py`, `ui/pages/*` | Home, Purpose, Dashboard, Command Center, Assistant, About. |
 | **Verification** | `scripts/*`, `tests/*` | Supply audit, lag audit, accuracy/calibration, offline proof, UI smoke, unit tests. |
 
@@ -357,6 +357,7 @@ question + live context
   -> intent + entity extraction
   -> allocation / routing / metrics lookup
   -> bounded read-only what-if
+  -> natural-language check parser -> expected vs actual PASS/FAIL
   -> deterministic answer + sources
 ```
 
@@ -445,6 +446,10 @@ question + live context
 
 > “No. It is a deterministic intent router over the live allocation, routing and metrics. It has no external API, no model download and no hallucinated numbers; unknown questions get a safe fallback.”
 
+### “Can it check a test case I explain in words?”
+
+> “Yes. Describe the scenario and expected output — for example, ‘At 60% stock with 8 crews, regional saline should be 749 of 1,249, and 31 of 60 wards should have a supply gap.’ It parses the stock/crews/city/ward context, re-runs allocation, and returns an expected-vs-actual PASS/FAIL table. No test-case IDs and no external API.”
+
 ### “Does it work offline?”
 
 > “Yes. `scripts/offline_check.py` blocks sockets and runs forecast, allocation, routing, assistant, simulation and dispatch to completion. The local app has zero runtime APIs.”
@@ -459,7 +464,7 @@ question + live context
 # 9. Verification in five commands {.keep-with-previous}
 
 ```bash
-python -m unittest discover              # 36 tests
+python -m unittest discover              # 43 tests
 python scripts/verify_supply_formulas.py # 31,320 / 31,320 exact
 python scripts/verify_accuracy.py        # MAE 1.054, 80% coverage 81.5%
 python scripts/offline_check.py          # socket-blocked full pipeline

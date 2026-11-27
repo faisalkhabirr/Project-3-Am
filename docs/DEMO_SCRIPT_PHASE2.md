@@ -84,11 +84,13 @@ matches the repo. The app footer prints the current short git hash; leave it vis
 ### 4:45–5:25 — Application-aware assistant (Assistant)
 > "This is the field assistant — not a generic chatbot, and no external API. It answers from the
 > current scenario. I can ask: 'Why is my ward short?' — it shows the exact supplies, crew gap and
-> next action. 'Where do overflow patients go?' — the transfer list. 'What if stock drops to 30%?'
-> — a read-only recomputation. 'How accurate is the forecast?' — MAE 1.054 and 81.5% interval
-> coverage. I switch to the hospital-manager view; the guidance changes, the numbers do not."
+> next action. But the stronger part is verification: I describe a test in words — 'At 60% stock
+> with 8 crews, regional saline should be 749 of 1,249, and 31 of 60 wards should have a supply
+> gap.' It parses the scenario, re-runs allocation, and returns an expected-vs-actual PASS/FAIL
+> table. No test-case IDs. I switch to the hospital-manager view; the guidance changes, the numbers
+> do not."
 >
-> **Ask two questions and switch the role once.**
+> **Ask one question, run one natural-language check, switch the role once.**
 
 ### 5:25–6:05 — Offline kill switch (terminal)
 > "Here is the resilience proof. I am going to block the sockets, then run the entire pipeline:

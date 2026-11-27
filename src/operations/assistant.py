@@ -22,6 +22,7 @@ import pandas as pd
 
 from .. import config
 from .allocation import AllocationResult, WardDemand, allocate
+from .checks import verify_explanation
 from .routing import RoutingResult
 from .supplies import cases_to_supplies
 
@@ -94,17 +95,20 @@ def interval_coverage(metrics: dict, preds: pd.DataFrame | None) -> float | None
 
 def suggested_questions(context: AssistantContext) -> list[str]:
     ward = str(context.ward_id).replace("_", " ")
+    available = int(context.allocation.available["saline_bags_needed"])
+    required = int(context.allocation.required["saline_bags_needed"])
+    stock = context.stock_frac * 100
     if normalise_role(context.role) == ROLE_HOSPITAL:
         return [
             f"Where do overflow patients from {ward} go?",
-            f"How many beds does {ward} need?",
-            "What if stock drops to 30%?",
+            f"At {stock:.0f}% stock, regional saline should be {available:,} of {required:,}.",
             "How accurate is the forecast?",
+            "Does this work offline?",
         ]
     return [
         f"Why is {ward} short?",
-        f"Should I send crews to {ward}?",
-        "What if stock drops to 30%?",
+        f"At {stock:.0f}% stock, regional saline should be {available:,} of {required:,}.",
+        "Where do overflow patients go?",
         "How accurate is the forecast?",
     ]
 
@@ -115,6 +119,20 @@ def answer(question: str, context: AssistantContext) -> AssistantAnswer:
     q = _normalise(question)
     if not q:
         return _help(context, role, "help")
+    verify_phrases = (
+        "check ",
+        "verify ",
+        "make sure",
+        "confirm ",
+        "assert ",
+        "test whether",
+        "test that",
+    )
+    assertion_phrases = re.compile(
+        r"\b(?:should|must)\s+(?:be|have|get|receive|equal|show|cross|remain|stay)\b"
+    )
+    if any(phrase in q for phrase in verify_phrases) or assertion_phrases.search(q):
+        return _verify(context, question)
 
     city = _mentioned_city(q) or context.city
     ward_id = _resolve_ward(q, context, city)
@@ -326,6 +344,7 @@ def _help(context: AssistantContext, role: str, intent: str) -> AssistantAnswer:
         "- **Supplies** — saline, kits, beds and the verified formulas\n"
         "- **Crews** — required vs assigned and who is next in priority\n"
         "- **What-if** — “What if stock drops to 30%?” (read-only)\n"
+        "- **Verify** — describe a test in words and get expected vs actual\n"
         "- **Trust** — MAE, calibration, leakage, offline proof\n\n"
         "Try one of the suggested questions below."
     )
@@ -343,6 +362,16 @@ def _offline(role: str) -> AssistantAnswer:
         "does not."
     )
     return AssistantAnswer(text, "offline", [], ["offline_check.py", ".streamlit/config.toml"])
+
+
+def _verify(context: AssistantContext, question: str) -> AssistantAnswer:
+    report = verify_explanation(question, context)
+    return AssistantAnswer(
+        text=report.markdown,
+        intent="verify",
+        suggestions=report.suggestions,
+        sources=report.sources,
+    )
 
 
 def _assistant_meta(role: str) -> AssistantAnswer:

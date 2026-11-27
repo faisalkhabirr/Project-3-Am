@@ -37,6 +37,7 @@ from src import data_access as data
 from src.operations.allocation import WardDemand, allocate
 from src.operations.assistant import AssistantContext
 from src.operations.assistant import answer as assistant_answer
+from src.operations.checks import verify_explanation
 from src.operations.dispatch import build_notice, write_exports
 from src.operations.routing import (
     capacity_scaled,
@@ -117,6 +118,16 @@ def main() -> int:
     )
     assistant_reply = assistant_answer("Why is my ward short?", assistant_context)
     print(f"  assistant: {assistant_reply.intent} answer generated offline")
+    check_prompt = (
+        "At 60% stock with 8 crews, regional saline should be "
+        f"{allocation.available['saline_bags_needed']} of "
+        f"{allocation.required['saline_bags_needed']}."
+    )
+    check_report = verify_explanation(check_prompt, assistant_context)
+    print(
+        f"  assistant check: {'PASS' if check_report.passed else 'FAIL'} "
+        f"({len(check_report.assertions)} assertions)"
+    )
 
     top = allocation.per_ward.sort_values("priority", ascending=False).head(2)
     simulation = simulate(

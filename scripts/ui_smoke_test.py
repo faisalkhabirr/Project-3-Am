@@ -87,7 +87,7 @@ def main() -> int:
     if not at.chat_input:
         print("FAIL: assistant chat input not found", file=sys.stderr)
         return 1
-    at.chat_input[0].set_value("Why is my ward short?").run()
+    at.chat_input[0].set_value("Check at 30% stock with 8 crews.").run()
     if at.exception:
         for exc in at.exception:
             print(f"FAIL assistant answer: {exc.value}", file=sys.stderr)

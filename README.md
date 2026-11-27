@@ -166,9 +166,13 @@ dedicated set of pages and is entirely local.
 
 **Assistant.** A separate Messenger-style page answers read-only questions from the current
 scenario: “Why is my ward short?”, “Where does overflow go?”, “What if stock is 30%?”, “How
-accurate is the forecast?”. It uses a deterministic intent router over the live allocation,
-routing and committed metrics — no LLM and no external API. A Commissioner / Hospital-manager
-toggle changes the guidance without changing the numbers.
+accurate is the forecast?”. It also accepts **natural-language verification**: describe the
+scenario and expected result in words — for example, “At 60% stock with 8 crews, regional saline
+should be 749 of 1,249, and 31 of 60 wards should have a supply gap” — and it parses the
+scenario, re-runs the engine, and returns an expected-vs-actual PASS/FAIL table. It uses a
+deterministic intent/check parser over the live allocation, routing and committed metrics — no
+LLM and no external API. A Commissioner / Hospital-manager toggle changes the guidance without
+changing the numbers.
 
 **Allocation rule.** `allocate()` is pure and deterministic: protected floor → strict priority
 water-filling → integer units. The invariant tests prove monotonicity (more stock never reduces
@@ -379,7 +383,7 @@ Expected: `PASS — inference path is healthy.`
 | Model + inference path | `python scripts/smoke_test.py` | PASS |
 | Phase 2 supply audit | `python scripts/verify_supply_formulas.py` | PASS, 31,320/31,320 rows per column |
 | Forecast accuracy + calibration | `python scripts/verify_accuracy.py` | PASS, MAE 1.054, 80% coverage 81.5% |
-| Engine invariants | `python -m unittest discover` | PASS, 36 tests |
+| Engine invariants | `python -m unittest discover` | PASS, 43 tests |
 | Offline kill-switch | `python scripts/offline_check.py` | PASS with sockets blocked |
 | Headless UI flow | `python scripts/ui_smoke_test.py` | Home → Command → 30% stress → counterfactual → Assistant chat, no exceptions |
 | Dispatch samples | `python scripts/export_dispatch_samples.py` | 24 files in `exports/` |
@@ -410,6 +414,7 @@ src/
     simulation.py           model-driven crew counterfactuals
     dispatch.py             SMS / WhatsApp / printable HTML templates
     assistant.py            deterministic, application-aware Q&A
+    checks.py               natural-language scenario + assertion evaluator
   data/                     real-data feature pipeline
   model/                    real-data training + artifact export
 data/
@@ -439,7 +444,7 @@ tests/
   test_supplies.py          supply conversion + full dataset reproduction
   test_operations.py        allocation, routing, simulation, dispatch invariants
   test_pipeline.py          onsite training source, no supply leakage, causal lags
-  test_assistant.py         intent routing, role wording, read-only what-if
+  test_assistant.py         intent routing, role wording, read-only what-if and natural-language checks
 docs/
   home.png                  landing page screenshot
   dashboard.png             dashboard screenshot

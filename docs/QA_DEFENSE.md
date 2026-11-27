@@ -142,7 +142,9 @@ capacity survey to replace the p75 baseline.
 No. It is a deterministic intent router over the live `AllocationResult`,
 `RoutingResult` and committed metrics. It extracts the ward/city/stock context,
 recomputes only bounded read-only what-ifs, and renders templates with exact
-numbers. Unknown questions get a safe fallback. There is no LLM call, no
+numbers. It also parses natural-language checks — “At 60% stock, regional saline
+should be 749 of 1,249” — re-runs the engine and returns expected vs actual
+PASS/FAIL. Unknown questions get a safe fallback. There is no LLM call, no
 embedding service and no network access. A Commissioner / Hospital-manager role
 changes the guidance wording, not the numbers.
 

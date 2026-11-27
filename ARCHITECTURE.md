@@ -270,6 +270,13 @@ context chips. No network call, no embeddings service and no model download are
 involved; `scripts/offline_check.py` includes an assistant answer in the
 socket-blocked proof.
 
+`src/operations/checks.py` adds **natural-language verification**. It extracts a
+scenario (stock %, crews, city, ward) and assertions (regional/city/ward supplies,
+supply-gap wards, crew-gap wards, cross-city invariant, MAE, interval coverage,
+supply formula), re-runs the relevant engine, and returns an expected-vs-actual
+PASS/FAIL table. It never uses `eval`, a shell or arbitrary code; unknown claims
+are reported as clarification.
+
 ---
 
 ## 7. Compute & API cost controls

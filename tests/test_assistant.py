@@ -165,6 +165,69 @@ class AssistantTest(unittest.TestCase):
         self.assertIn("grounded answer", result.text)
         self.assertTrue(result.suggestions)
 
+    def test_natural_language_check_passes_with_matching_outputs(self) -> None:
+        available = int(self.context.allocation.available["saline_bags_needed"])
+        required = int(self.context.allocation.required["saline_bags_needed"])
+        result = assistant_answer(
+            f"At 60% stock with 2 crews, regional saline should be {available} of {required}.",
+            self.context,
+        )
+        self.assertEqual(result.intent, "verify")
+        self.assertIn("Regional saline available", result.text)
+        self.assertIn("Overall: PASS", result.text)
+
+    def test_natural_language_check_fails_on_wrong_expected_value(self) -> None:
+        result = assistant_answer(
+            "At 60% stock with 2 crews, regional saline should be 1 of 2.",
+            self.context,
+        )
+        self.assertEqual(result.intent, "verify")
+        self.assertIn("Overall: FAIL", result.text)
+
+    def test_natural_language_ward_check(self) -> None:
+        row = self.context.allocation.per_ward.set_index("ward_id").loc["DNCC_Ward_12"]
+        result = assistant_answer(
+            f"Ward 12 should have {int(row['allocated_crews'])} crews.",
+            self.context,
+        )
+        self.assertEqual(result.intent, "verify")
+        self.assertIn("Ward crews allocated", result.text)
+        self.assertIn("Overall: PASS", result.text)
+
+    def test_natural_language_ward_pair_check(self) -> None:
+        row = self.context.allocation.per_ward.set_index("ward_id").loc["DNCC_Ward_12"]
+        result = assistant_answer(
+            f"Ward 12 should have {int(row['allocated_saline'])} of "
+            f"{int(row['required_saline'])} saline and "
+            f"{int(row['allocated_crews'])} of {int(row['required_crews'])} crews.",
+            self.context,
+        )
+        self.assertIn("Ward saline allocated", result.text)
+        self.assertIn("Ward crews allocated", result.text)
+        self.assertIn("Overall: PASS", result.text)
+
+    def test_natural_language_invariant_and_accuracy_checks(self) -> None:
+        invariant = assistant_answer(
+            "No transfer should cross a city boundary.", self.context
+        )
+        self.assertIn("Cross-city transfers", invariant.text)
+        self.assertIn("Overall: PASS", invariant.text)
+        accuracy = assistant_answer("The model MAE should be below 1.5.", self.context)
+        self.assertIn("Holdout MAE", accuracy.text)
+        self.assertIn("Overall: PASS", accuracy.text)
+
+    def test_natural_language_supply_formula_check(self) -> None:
+        result = assistant_answer("Saline for 10 cases should be 24.", self.context)
+        self.assertIn("Saline for 10 cases", result.text)
+        self.assertIn("Overall: PASS", result.text)
+
+    def test_scenario_without_claim_returns_actual_output(self) -> None:
+        result = assistant_answer("Check at 30% stock with 2 crews.", self.context)
+        self.assertEqual(result.intent, "verify")
+        self.assertNotIn("Overall:", result.text)
+        self.assertIn("actual output", result.text)
+        self.assertIn("Regional saline", result.text)
+
     def test_deterministic(self) -> None:
         first = assistant_answer("Why is my ward short?", self.context)
         second = assistant_answer("Why is my ward short?", self.context)
