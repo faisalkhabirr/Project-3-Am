@@ -54,10 +54,11 @@ matches the repo. The app footer prints the current short git hash; leave it vis
 ### 2:15–3:05 — Overflow routing (Command → Overflow)
 > "Beds are the next constraint. The dataset has no bed capacity, so we use a transparent planning
 > baseline: each ward's historical 75th-percentile weekly bed demand, minimum two beds. A
-> capacity multiplier lets a judge stress-test it. At 1.2×, the router moves seven patients from
-> lower-burden wards to deficit wards, strictly inside the same city — Dhaka North to Dhaka North,
-> never across a city boundary. The city table shows demand, capacity, headroom and utilization.
-> If I drop the multiplier, every city escalates — that is the regional exhaustion flag."
+> capacity multiplier lets a judge stress-test it. At 1.2×, the router makes seven intra-city
+> transfers across the five pools — two of them into Dhaka North wards — strictly inside each
+> city; it never crosses a city boundary. The city table shows demand, capacity, headroom and
+> utilization. If I drop the multiplier, every city escalates — that is the regional exhaustion
+> flag."
 
 ### 3:05–4:35 — Counterfactual simulator (Command → Simulate)
 > "Now the what-if. I select three wards, two larvicide crews each, start week one, four-week
