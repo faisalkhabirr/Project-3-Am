@@ -23,9 +23,9 @@
       <div class="cover-value">project3am.streamlit.app</div>
     </div>
     <div>
-      <span class="cover-label">Code snapshot</span>
-      <div class="cover-value">ce0fbb6a65f3</div>
-      <div class="cover-subvalue">version-onsite-final</div>
+      <span class="cover-label">Release</span>
+      <div class="cover-value">version-onsite-final</div>
+      <div class="cover-subvalue">Phase 2 onsite final</div>
     </div>
     <div>
       <span class="cover-label">Generated</span>
