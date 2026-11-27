@@ -4,6 +4,15 @@ __pycache__/
 .venv/
 .pytest_cache/
 
+# Secrets and credentials — never commit these
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.pfx
+.streamlit/secrets.toml
+
 # Local / dev-only artifacts
 models_dev/
 data/processed_dev/

@@ -1,6 +1,6 @@
 # Synthetic ensemble experiment — **not the shipped model**
 
-This folder preserves the R&D notebook and serialized artifact that
+This folder preserves the R&D notebook that
 **Muhammad Anamur Rashid (`loser-2-o`)** explored during the build. It is kept for transparency and
 as a starting point for a future real-data ensemble. **The live dashboard does not load any file
 from this folder.**
@@ -9,8 +9,8 @@ from this folder.**
 
 | Item | Detail |
 |---|---|
-| Notebook | `Team_3_AM_synthetic_benchmark.ipynb` |
-| Artifact | `dengue_ensemble_synthetic_v2.joblib` (~3.4 MB) |
+| Notebook | `Team_3_AM_synthetic_benchmark.ipynb` (outputs cleared) |
+| Artifact | Not committed — regenerate locally from the notebook if needed |
 | Model | 5-model stack: LightGBM, XGBoost, CatBoost, Random Forest, Extra Trees + Ridge meta-learner |
 | Features | 1w–4w weather lags, 2w/4w rolling means and max, rainfall × vulnerability interactions |
 | Split | 80/20 chronological on the generated data (380 train / 100 validation rows) |
@@ -51,12 +51,14 @@ The notebook was written for Google Colab:
 pip install lightgbm xgboost catboost scikit-learn pandas numpy matplotlib seaborn shap joblib
 ```
 
-Then open the notebook and run all cells. It regenerates the synthetic data and the artifact; it
-does not touch the official dataset or the app.
+Then open the notebook and run all cells. It regenerates the synthetic data locally; it
+does not touch the official dataset or the app. The serialized `.joblib` is intentionally
+**not committed**: it is unused by the app and joblib deserialization is a code-execution
+surface. Only regenerate it from this trusted notebook.
 
 ## What a real-data version would need
 
-- Ingest `data/raw/dengue_weather.csv` (60 wards, 2016–2025).
+- Ingest `data/raw/dengue_onsite.csv` (60 wards, 2016–2025).
 - Build one row per `(ward_id, date, horizon_weeks 1–4)` with future `target_cases`.
 - Use the exact feature list in `models/feature_columns.json` (or publish a new contract and update
   the app).

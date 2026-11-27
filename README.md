@@ -487,7 +487,7 @@ Git history is incremental across the build window, with feature, model, noteboo
 separate commits. See the [commit history](https://github.com/faisalkhabirr/Project-3-Am/commits/main)
 and the contributor graph.
 
-The **About Us** page mirrors this table, including the GitHub and email links.
+The **About Us** page mirrors this table with GitHub links.
 
 ---
 

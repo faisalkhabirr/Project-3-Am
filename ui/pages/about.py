@@ -8,21 +8,18 @@ TEAM = (
         "initials": "FK",
         "name": "Faisal Khabir",
         "handle": "faisalkhabirr",
-        "email": "faisalkhabir@gmail.com",
         "affiliation": "Student, East Delta University, Chattogram",
     },
     {
         "initials": "MR",
         "name": "Muhammad Anamur Rashid",
         "handle": "loser-2-o",
-        "email": "muhammadanamurrashid@gmail.com",
         "affiliation": "Student, East Delta University, Chattogram",
     },
     {
         "initials": "TJ",
         "name": "Tanvir Jonayed",
         "handle": "tanvir-jonayed",
-        "email": "tanvirjonayed772@gmail.com",
         "affiliation": "Student, East Delta University, Chattogram",
     },
 )
@@ -53,7 +50,6 @@ def render() -> None:
   <div class="member-affiliation">{member['affiliation']}</div>
   <div class="member-links">
     <a href="https://github.com/{member['handle']}" target="_blank" rel="noopener">GitHub ↗</a>
-    <a href="mailto:{member['email']}">{member['email']}</a>
   </div>
 </div>
 """
