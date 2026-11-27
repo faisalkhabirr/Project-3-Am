@@ -70,6 +70,10 @@ Script: [`docs/DEMO_SCRIPT.md`](docs/DEMO_SCRIPT.md)
 **Q&A preparation:** [`docs/QA_DEFENSE.md`](docs/QA_DEFENSE.md) — 19 rehearsed questions
 with the exact numbers and the honest assumptions behind them.
 
+**Judge reference PDF:** [`docs/Aedes_Sentinel_Model_System_Design.pdf`](docs/Aedes_Sentinel_Model_System_Design.pdf) —
+model, split, five Phase 2 capabilities, complete system design and Q&A short answers.
+Source: [`docs/MODEL_AND_SYSTEM_QA.md`](docs/MODEL_AND_SYSTEM_QA.md).
+
 <!-- Replace the lines above with unlisted YouTube/Drive links before submission. -->
 
 ---
@@ -427,8 +431,9 @@ scripts/
   verify_supply_formulas.py row-for-row Phase 2 supply audit
   verify_accuracy.py        holdout MAE, baseline lift and 80% interval coverage
   offline_check.py          socket-blocked full-pipeline proof
-  ui_smoke_test.py          headless Home -> Command -> simulation flow
+  ui_smoke_test.py          headless Home -> Command -> simulation -> Assistant
   export_dispatch_samples.py sample SMS / WhatsApp / brief packet
+  build_qa_pdf.py           renders the judge reference PDF (dev-only deps)
   smoke_test.py             end-to-end inference check
 tests/
   test_supplies.py          supply conversion + full dataset reproduction
@@ -442,6 +447,8 @@ docs/
   DEMO_SCRIPT_PHASE2.md     Phase 2 7:00 uncut recording plan
   QA_DEFENSE.md             rehearsed answers and numbers for the 30-point Q&A
   DEPLOYMENT.md             Streamlit Cloud + offline fallback runbook
+  MODEL_AND_SYSTEM_QA.md    source for the judge reference PDF
+  Aedes_Sentinel_Model_System_Design.pdf  styled 15-page judge reference
 ARCHITECTURE.md             system design + validation + cost controls
 README.md
 LICENSE
