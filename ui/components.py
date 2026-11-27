@@ -29,7 +29,7 @@ def build_hash() -> str:
         return override[:12]
     try:
         secret = st.secrets.get("COMMIT_HASH")  # type: ignore[union-attr]
-    except Exception:  # noqa: BLE001 - no secrets file on local/offline runs
+    except Exception:
         secret = None
     if secret:
         return str(secret)[:12]
@@ -41,7 +41,7 @@ def build_hash() -> str:
             stderr=subprocess.DEVNULL,
             timeout=2,
         ).strip()
-    except Exception:  # noqa: BLE001 - deployment may not include .git
+    except Exception:
         return "local"
 
 

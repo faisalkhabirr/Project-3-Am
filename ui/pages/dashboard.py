@@ -9,7 +9,8 @@ import numpy as np
 import pandas as pd
 import streamlit as st
 
-from src import charts, config, data_access as data, inference
+from src import charts, config, inference
+from src import data_access as data
 
 
 def ordinal(value: float | None) -> str:
@@ -76,7 +77,7 @@ def load_model_and_features():
             raise inference.ModelNotReady(
                 f"Feature table not found at {config.FEATURES}."
             )
-    except Exception as exc:  # noqa: BLE001 - shown to the user
+    except Exception as exc:
         error = str(exc)
     return bundle, features, error
 
@@ -89,7 +90,7 @@ def render_dashboard() -> None:
     try:
         raw = data.load_raw()
         meta = data.load_ward_meta()
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         st.error(f"Could not load the dataset: {exc}")
         st.stop()
 
@@ -198,7 +199,7 @@ def render_dashboard() -> None:
     if model_ready:
         try:
             pred = inference.predict(ward, as_of, horizon, features=features, bundle=bundle)
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
             st.error(f"Prediction failed for {ward} on {data.format_date(as_of)}: {exc}")
 
         if pred is not None:
@@ -206,7 +207,7 @@ def render_dashboard() -> None:
                 drivers = inference.explain(
                     ward, as_of, horizon, features=features, bundle=bundle
                 )
-            except Exception:  # noqa: BLE001 - drivers are optional
+            except Exception:
                 drivers = None
 
             rows = []
@@ -223,13 +224,13 @@ def render_dashboard() -> None:
                             "tier": item.tier,
                         }
                     )
-                except Exception:  # noqa: BLE001 - horizon may be outside the table
+                except Exception:
                     continue
             forecast_df = pd.DataFrame(rows)
 
     try:
         context = data.lag_context(raw, meta, ward, as_of)
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         context = None
         st.warning(f"Could not build the driver context: {exc}")
 
@@ -447,7 +448,7 @@ def render_dashboard() -> None:
                     )
                 else:
                     st.info("No batch predictions available for this city/week.")
-            except Exception as exc:  # noqa: BLE001
+            except Exception as exc:
                 st.warning(f"Could not build the city ranking: {exc}")
         else:
             st.info("The city-wide ranking will appear when the model is available.")
@@ -480,7 +481,7 @@ def render_dashboard() -> None:
                     )
                 else:
                     st.info("No heatmap data available for this city/week.")
-            except Exception as exc:  # noqa: BLE001
+            except Exception as exc:
                 st.warning(f"Could not build the heatmap: {exc}")
         else:
             st.info("The ward × week heatmap will appear when the model is available.")

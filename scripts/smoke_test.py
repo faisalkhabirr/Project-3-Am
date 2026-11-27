@@ -20,7 +20,8 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from src import config, data_access as data, inference  # noqa: E402
+from src import config, inference
+from src import data_access as data
 
 
 def main() -> int:

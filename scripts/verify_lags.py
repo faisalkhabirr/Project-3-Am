@@ -135,12 +135,12 @@ def main() -> int:
         candidates = {
             "shift(1).rolling(k)": raw.assign(
                 _expected=raw.groupby(WARD)["rainfall_mm"].transform(
-                    lambda s: s.shift(1).rolling(k).sum()
+                    lambda s, k=k: s.shift(1).rolling(k).sum()
                 )
             ).set_index([WARD, DATE])["_expected"],
             "rolling(k)": raw.assign(
                 _expected=raw.groupby(WARD)["rainfall_mm"].transform(
-                    lambda s: s.rolling(k).sum()
+                    lambda s, k=k: s.rolling(k).sum()
                 )
             ).set_index([WARD, DATE])["_expected"],
         }

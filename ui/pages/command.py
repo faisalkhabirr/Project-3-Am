@@ -5,9 +5,9 @@ from pathlib import Path
 
 import pandas as pd
 import streamlit as st
-import streamlit.components.v1 as components
 
-from src import charts, config, data_access as data, inference
+from src import charts, config, inference
+from src import data_access as data
 from src.operations.allocation import WardDemand, allocate
 from src.operations.dispatch import build_notice, write_exports
 from src.operations.routing import (
@@ -141,7 +141,7 @@ def render_command() -> None:
         meta = data.load_ward_meta()
         features = data.load_features()
         bundle = inference.load_bundle()
-    except Exception as exc:  # noqa: BLE001 - shown to the user
+    except Exception as exc:
         st.error(f"Command Center needs the bundled data and model: {exc}")
         st.stop()
 
@@ -699,7 +699,7 @@ def render_command() -> None:
                 key="dl_html",
             )
         with right:
-            components.html(notice.html, height=620, scrolling=True)
+            st.html(notice.preview)
 
         if st.button("Export all city packets to /exports", key="export_all"):
             city_notices = []

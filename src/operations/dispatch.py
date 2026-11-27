@@ -33,6 +33,7 @@ class DispatchNotice:
     sms: str
     whatsapp: str
     html: str
+    preview: str
 
     @property
     def deficits(self) -> dict[str, int]:
@@ -215,6 +216,94 @@ def _html(
 </html>"""
 
 
+def _preview(
+    *,
+    ward_id: str,
+    city: str,
+    target_date: str,
+    predicted_cases: float,
+    tier: str,
+    required: dict[str, int],
+    allocated: dict[str, int],
+    crews_required: int,
+    crews_allocated: int,
+    overflow: dict[str, int],
+    notes: str,
+) -> str:
+    """Inline-styled preview fragment for st.html (no global CSS, no iframe)."""
+    e = html.escape
+    tier_colour = config.TIER_COLORS.get(tier, "#334155")
+    rows = []
+    for key in SUPPLY_KEYS:
+        gap = required[key] - allocated[key]
+        status = f"Deficit {gap}" if gap > 0 else "Covered"
+        colour = "#b3261e" if gap > 0 else "#2f7d4a"
+        rows.append(
+            "<tr>"
+            f"<td style='padding:6px 4px;border-bottom:1px solid #e2e8e3'>{e(SHORT[key])}</td>"
+            f"<td style='padding:6px 4px;border-bottom:1px solid #e2e8e3;text-align:right'>"
+            f"{allocated[key]} / {required[key]}</td>"
+            f"<td style='padding:6px 4px;border-bottom:1px solid #e2e8e3;color:{colour};"
+            f"font-weight:600'>{e(status)}</td>"
+            "</tr>"
+        )
+    overflow_text = (
+        ", ".join(
+            f"{patients} → {ward.replace('_', ' ')}"
+            for ward, patients in overflow.items()
+        )
+        if overflow
+        else "None · city headroom available"
+    )
+    note = (
+        f"<p style='margin:10px 0 0;font-size:12px;color:#5b6b60'><strong>Note:</strong> "
+        f"{e(notes)}</p>"
+        if notes
+        else ""
+    )
+    return f"""
+<div style="border:1px solid #d8e0da;border-radius:14px;padding:18px 20px;background:#fff;
+            color:#17221c;font-family:Inter,Arial,sans-serif;line-height:1.45">
+  <div style="font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#5b6b60;
+              font-weight:700">Aedes Sentinel · brief preview</div>
+  <div style="font-size:22px;font-weight:800;margin:4px 0 2px">
+    {e(city)} · {e(str(ward_id).replace('_', ' '))}
+  </div>
+  <div style="font-size:13px;color:#5b6b60">
+    Week of <strong>{e(target_date)}</strong> ·
+    <span style="background:{tier_colour};color:#fff;border-radius:999px;padding:2px 9px;
+                 font-size:11px;font-weight:700">{e(tier)}</span> ·
+    <strong>{_fmt(predicted_cases)}</strong> expected cases
+  </div>
+  <table style="width:100%;border-collapse:collapse;margin:14px 0 8px;font-size:13px">
+    <thead><tr>
+      <th style="text-align:left;font-size:10px;text-transform:uppercase;color:#5b6b60;
+                 padding:4px">Commodity</th>
+      <th style="text-align:right;font-size:10px;text-transform:uppercase;color:#5b6b60;
+                 padding:4px">Got / need</th>
+      <th style="text-align:left;font-size:10px;text-transform:uppercase;color:#5b6b60;
+                 padding:4px">Status</th>
+    </tr></thead>
+    <tbody>{''.join(rows)}</tbody>
+  </table>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0">
+    <div style="border:1px solid #e2e8e3;border-radius:8px;padding:8px 10px">
+      <div style="font-size:10px;text-transform:uppercase;color:#5b6b60">Crews</div>
+      <div style="font-size:18px;font-weight:800">{crews_allocated} / {crews_required}</div>
+    </div>
+    <div style="border:1px solid #e2e8e3;border-radius:8px;padding:8px 10px">
+      <div style="font-size:10px;text-transform:uppercase;color:#5b6b60">Overflow</div>
+      <div style="font-size:12px;font-weight:600">{e(overflow_text)}</div>
+    </div>
+  </div>
+  {note}
+  <p style="margin:12px 0 0;font-size:11px;color:#5b6b60">
+    Use <strong>Download printable brief</strong> for the print / PDF packet.
+  </p>
+</div>
+"""
+
+
 def build_notice(
     *,
     ward_id: str,
@@ -254,6 +343,7 @@ def build_notice(
         sms=_sms(**common),
         whatsapp=_whatsapp(**common),
         html=_html(**common),
+        preview=_preview(**common),
     )
 
 

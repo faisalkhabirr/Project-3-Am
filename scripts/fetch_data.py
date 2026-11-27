@@ -48,7 +48,7 @@ def main() -> int:
     args = parser.parse_args()
     try:
         download(force=args.force)
-    except Exception as exc:  # noqa: BLE001 - CLI should print a clean message
+    except Exception as exc:
         print(f"Download failed: {exc}", file=sys.stderr)
         return 1
     return 0

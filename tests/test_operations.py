@@ -224,6 +224,8 @@ class DispatchTest(unittest.TestCase):
         self.assertEqual(notice.deficits["saline_bags_needed"], 8)
         self.assertIn("DNCC Ward 12", notice.whatsapp)
         self.assertIn("<html", notice.html)
+        self.assertIn("DNCC Ward 12", notice.preview)
+        self.assertNotIn("<style", notice.preview)
 
     def test_exports(self) -> None:
         notice = self._notice()

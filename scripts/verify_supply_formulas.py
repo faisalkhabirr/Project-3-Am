@@ -23,8 +23,8 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from src import config  # noqa: E402
-from src.operations.supplies import (  # noqa: E402
+from src import config
+from src.operations.supplies import (
     BEDS_PER_CASE,
     KITS_PER_CASE,
     SALINE_PER_CASE,

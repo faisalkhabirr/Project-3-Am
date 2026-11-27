@@ -6,8 +6,9 @@ import pandas as pd
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
-from . import config
 from ui.theme import PALETTE
+
+from . import config
 
 RED = PALETTE["critical"]
 ORANGE = PALETTE["high"]

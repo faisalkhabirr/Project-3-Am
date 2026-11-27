@@ -13,6 +13,7 @@ questions will probe the assumptions behind allocation, routing and simulation.
 | Kits | `round_half_down(7/6 × cases)` ≈ 1.167 kits/case |
 | Beds | `round_half_down(0.3 × cases)` = 30% admission |
 | Model holdout | MAE **1.05**, RMSE **2.10**; seasonal-naive 1.69; persistence 1.75 |
+| Interval calibration | **81.5%** empirical coverage for the nominal 80% interval |
 | Allocation demo | 60% stock, 8 crews → 749/1,249 saline; supply gaps in 31/60 wards; crew gaps in 58/60 |
 | Routing demo | 1.20× capacity → 7 intra-city transfers, 0 unrouted beds |
 | Simulator demo | 2 larvicide crews × 3 Dhaka North wards × 4 weeks → ~12.1 cases prevented |

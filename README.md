@@ -8,7 +8,9 @@
 ![License](https://img.shields.io/badge/license-MIT-2F7D4A)
 ![Status](https://img.shields.io/badge/status-hackathon%20prototype-FFD84D)
 
-> **Team 3AM** · Built for the **Hackathon Phase 1: 24-Hour Remote Qualifier — AI for Urban Dengue Outbreak**.
+> **Team 3AM** · Built for the **Hackathon Phase 2: 10-Hour Onsite Final — AI for Urban Dengue Outbreak**.
+>
+> **Live app:** [project3am.streamlit.app](https://project3am.streamlit.app/) · **Offline-first** · **0 runtime APIs**
 
 ![Aedes Sentinel landing page](docs/home.png)
 
@@ -91,6 +93,8 @@ streamlit run app.py
 
 Open **http://localhost:8501**.
 
+**Live deployment:** [https://project3am.streamlit.app/](https://project3am.streamlit.app/)
+
 The dataset and serialized model are committed to the repo, so the app runs fully offline.
 There is no build step, no database, and no network call at runtime.
 Deployment and live-URL steps: [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md).
@@ -168,6 +172,10 @@ assumption is documented in the module docstring and in Q&A.
 
 **Offline proof.** `python scripts/offline_check.py` blocks sockets, then runs forecast →
 allocation → routing → simulation → dispatch to completion. It is the live kill-switch test.
+
+**Accuracy proof.** `python scripts/verify_accuracy.py` prints per-horizon MAE/RMSE, bias and
+empirical 80% interval coverage, and exits non-zero if the model fails to beat either baseline
+or if coverage leaves the 75–85% band.
 
 ---
 
@@ -358,6 +366,7 @@ Expected: `PASS — inference path is healthy.`
 | Data / lag integrity | `python scripts/verify_lags.py` | PASS |
 | Model + inference path | `python scripts/smoke_test.py` | PASS |
 | Phase 2 supply audit | `python scripts/verify_supply_formulas.py` | PASS, 31,320/31,320 rows per column |
+| Forecast accuracy + calibration | `python scripts/verify_accuracy.py` | PASS, MAE 1.054, 80% coverage 81.5% |
 | Engine invariants | `python -m unittest discover` | PASS, 22 tests |
 | Offline kill-switch | `python scripts/offline_check.py` | PASS with sockets blocked |
 | Headless UI flow | `python scripts/ui_smoke_test.py` | Home → Command → 30% stress → counterfactual, no exceptions |
@@ -407,6 +416,7 @@ scripts/
   fetch_data.py             one-time data refresh
   verify_lags.py            independent lag/leakage sanity checks
   verify_supply_formulas.py row-for-row Phase 2 supply audit
+  verify_accuracy.py        holdout MAE, baseline lift and 80% interval coverage
   offline_check.py          socket-blocked full-pipeline proof
   ui_smoke_test.py          headless Home -> Command -> simulation flow
   export_dispatch_samples.py sample SMS / WhatsApp / brief packet

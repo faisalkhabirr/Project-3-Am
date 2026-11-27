@@ -28,19 +28,20 @@ class OfflineViolation(RuntimeError):
     pass
 
 
-def _blocked(*args, **kwargs):  # noqa: ANN002, ANN003
+def _blocked(*args, **kwargs):
     raise OfflineViolation("network access attempted while offline")
 
 
-from src import config, data_access as data, inference  # noqa: E402
-from src.operations.allocation import WardDemand, allocate  # noqa: E402
-from src.operations.dispatch import build_notice, write_exports  # noqa: E402
-from src.operations.routing import (  # noqa: E402
+from src import config, inference
+from src import data_access as data
+from src.operations.allocation import WardDemand, allocate
+from src.operations.dispatch import build_notice, write_exports
+from src.operations.routing import (
     capacity_scaled,
     derive_bed_capacity,
     route_overflow,
 )
-from src.operations.simulation import Deployment, simulate  # noqa: E402
+from src.operations.simulation import Deployment, simulate
 
 # Block the common escape hatches after imports, so the proof covers runtime
 # access rather than library import mechanics.
