@@ -11,6 +11,7 @@ ROOT = Path(__file__).resolve().parents[1]
 # Paths
 # ---------------------------------------------------------------------------
 RAW_DATA = ROOT / "data" / "raw" / "dengue_weather.csv"
+ONSITE_RAW = ROOT / "data" / "raw" / "dengue_onsite.csv"
 PROCESSED_DIR = Path(os.getenv("PROCESSED_DIR", str(ROOT / "data" / "processed")))
 FEATURES = PROCESSED_DIR / "features.csv"
 MODEL_DIR = Path(os.getenv("MODEL_DIR", str(ROOT / "models")))
@@ -43,6 +44,19 @@ CITY_ORDER = [
     "Gazipur",
     "Narayanganj",
 ]
+
+# Phase 2 supply targets, in display order.
+SUPPLY_COLUMNS = [
+    "saline_bags_needed",
+    "diagnostic_kits_needed",
+    "hospital_beds_required",
+]
+
+SUPPLY_LABELS = {
+    "saline_bags_needed": "Saline bags",
+    "diagnostic_kits_needed": "Diagnostic kits",
+    "hospital_beds_required": "Hospital beds",
+}
 
 TIER_COLORS = {
     "Low": "#2F7D4A",

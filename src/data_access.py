@@ -26,6 +26,8 @@ REQUIRED_RAW_COLUMNS = {
     config.TARGET_COL,
 }
 
+REQUIRED_ONSITE_COLUMNS = REQUIRED_RAW_COLUMNS | set(config.SUPPLY_COLUMNS)
+
 
 def _mtime(path: Path) -> float:
     return path.stat().st_mtime if path.exists() else 0.0
@@ -59,6 +61,35 @@ def load_raw() -> pd.DataFrame:
             f"Raw dataset not found at {path}. Run `python scripts/fetch_data.py`."
         )
     return _load_raw_cached(str(path), _mtime(path))
+
+
+@st.cache_data(show_spinner=False)
+def _load_onsite_cached(path_str: str, mtime: float) -> pd.DataFrame:
+    df = _read_csv(Path(path_str), parse_dates=(config.DATE_COL,))
+    missing = REQUIRED_ONSITE_COLUMNS - set(df.columns)
+    if missing:
+        raise ValueError(f"Onsite dataset is missing columns: {sorted(missing)}")
+    df = df.dropna(subset=[config.DATE_COL, config.WARD_COL]).copy()
+    df[config.WARD_COL] = df[config.WARD_COL].astype(str)
+    df[config.CITY_COL] = df[config.CITY_COL].astype(str)
+    for col in config.SUPPLY_COLUMNS:
+        df[col] = pd.to_numeric(df[col], errors="raise").astype(int)
+    return df.sort_values([config.WARD_COL, config.DATE_COL]).reset_index(drop=True)
+
+
+def load_onsite() -> pd.DataFrame:
+    """Load the Phase 2 onsite dataset (Phase 1 columns + supply targets).
+
+    The case and weather columns are byte-identical to ``dengue_weather.csv``;
+    only the three deterministic supply targets were added. The bundled Phase 1
+    model therefore stays valid and does not need retraining.
+    """
+    path = config.ONSITE_RAW
+    if not path.exists():
+        raise FileNotFoundError(
+            f"Onsite dataset not found at {path}. Keep it bundled for offline judging."
+        )
+    return _load_onsite_cached(str(path), _mtime(path))
 
 
 @st.cache_data(show_spinner=False)
