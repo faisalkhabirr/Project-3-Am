@@ -1,0 +1,70 @@
+#!/usr/bin/env python3
+"""Headless Streamlit smoke test for the Phase 2 Command Center.
+
+Runs the real app with Streamlit's AppTest harness:
+Home -> Command -> 30% stock + 0.6x capacity -> counterfactual.
+
+    python scripts/ui_smoke_test.py
+"""
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from streamlit.testing.v1 import AppTest  # noqa: E402
+
+
+def main() -> int:
+    at = AppTest.from_file(str(ROOT / "app.py"), default_timeout=120)
+    at.run()
+    if at.exception:
+        for exc in at.exception:
+            print(f"FAIL home: {exc.value}", file=sys.stderr)
+        return 1
+
+    command = next((button for button in at.button if button.label == "Command"), None)
+    if command is None:
+        print("FAIL: Command nav button not found", file=sys.stderr)
+        return 1
+    command.click()
+    at.run()
+    if at.exception:
+        for exc in at.exception:
+            print(f"FAIL command: {exc.value}", file=sys.stderr)
+        return 1
+
+    by_label = {slider.label: slider for slider in at.slider}
+    by_label["Available regional stock"].set_value(30)
+    by_label["Bed capacity multiplier"].set_value(0.6)
+    at.run()
+    if at.exception:
+        for exc in at.exception:
+            print(f"FAIL scarcity stress: {exc.value}", file=sys.stderr)
+        return 1
+    if not at.error:
+        print("FAIL: expected a critical deficit alert at 30% stock", file=sys.stderr)
+        return 1
+
+    run = next((button for button in at.button if button.label == "Run counterfactual"), None)
+    if run is None:
+        print("FAIL: simulator button not found", file=sys.stderr)
+        return 1
+    run.click()
+    at.run()
+    if at.exception:
+        for exc in at.exception:
+            print(f"FAIL simulator: {exc.value}", file=sys.stderr)
+        return 1
+    if not any("ROI" in str(block.value) or "Intervention" in str(block.value) for block in at.markdown):
+        print("WARN: ROI heading not detected", file=sys.stderr)
+
+    print("PASS — Home, Command Center, 30% stress test and counterfactual render without exceptions.")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

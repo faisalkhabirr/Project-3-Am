@@ -354,6 +354,7 @@ Expected: `PASS — inference path is healthy.`
 | Phase 2 supply audit | `python scripts/verify_supply_formulas.py` | PASS, 31,320/31,320 rows per column |
 | Engine invariants | `python -m unittest discover` | PASS, 17 tests |
 | Offline kill-switch | `python scripts/offline_check.py` | PASS with sockets blocked |
+| Headless UI flow | `python scripts/ui_smoke_test.py` | Home → Command → 30% stress → counterfactual, no exceptions |
 | Dispatch samples | `python scripts/export_dispatch_samples.py` | 24 files in `exports/` |
 
 The UI tests explicitly cover the three dashboard tabs, the preserved widget keys
@@ -401,6 +402,7 @@ scripts/
   verify_lags.py            independent lag/leakage sanity checks
   verify_supply_formulas.py row-for-row Phase 2 supply audit
   offline_check.py          socket-blocked full-pipeline proof
+  ui_smoke_test.py          headless Home -> Command -> simulation flow
   export_dispatch_samples.py sample SMS / WhatsApp / brief packet
   smoke_test.py             end-to-end inference check
 tests/
