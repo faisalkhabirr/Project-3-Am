@@ -373,6 +373,119 @@ def validation_error_figure(test: pd.DataFrame) -> go.Figure:
     return _style(fig, height=290)
 
 
+def allocation_figure(frame: pd.DataFrame, top_n: int = 12) -> go.Figure:
+    """Required vs allocated saline for the highest-demand wards."""
+    data = (
+        frame.sort_values(["required_saline", "priority"], ascending=False)
+        .head(top_n)
+        .iloc[::-1]
+    )
+    labels = [str(w).replace("_", " ") for w in data["ward_id"]]
+    colours = [RED if row.deficit else GREEN for row in data.itertuples()]
+    fig = go.Figure()
+    fig.add_trace(
+        go.Bar(
+            x=data["required_saline"],
+            y=labels,
+            orientation="h",
+            name="Required",
+            marker_color="#D9D9D9",
+            marker_line_width=0,
+            hovertemplate="<b>%{y}</b><br>Required: %{x} bags<extra></extra>",
+        )
+    )
+    fig.add_trace(
+        go.Bar(
+            x=data["allocated_saline"],
+            y=labels,
+            orientation="h",
+            name="Allocated",
+            marker_color=colours,
+            marker_line_width=0,
+            customdata=np.stack([data["tier"], data["fulfillment_pct"] * 100], axis=-1),
+            hovertemplate=(
+                "<b>%{y}</b><br>Allocated: %{x} bags<br>"
+                "Tier: %{customdata[0]}<br>Fulfilment: %{customdata[1]:.0f}%<extra></extra>"
+            ),
+        )
+    )
+    fig.update_layout(
+        title=dict(text="Constrained saline allocation", font=dict(size=15, color=INK)),
+        barmode="overlay",
+        xaxis_title="Saline bags",
+        yaxis_title=None,
+        legend=dict(orientation="h", y=-0.12),
+    )
+    fig.update_xaxes(showgrid=True, gridcolor=GRID, rangemode="tozero")
+    height = max(320, 80 + 34 * len(data))
+    return _style(fig, height=height, margin=dict(l=10, r=20, t=42, b=48))
+
+
+def city_utilization_figure(utilization: dict[str, float]) -> go.Figure:
+    data = pd.Series(utilization).sort_values()
+    colours = [RED if value >= 1.0 else AMBER if value >= 0.85 else GREEN for value in data]
+    fig = go.Figure(
+        go.Bar(
+            x=data.to_numpy() * 100,
+            y=[str(city) for city in data.index],
+            orientation="h",
+            marker_color=colours,
+            marker_line_width=0,
+            text=[f"{value:.0f}%" for value in data.to_numpy() * 100],
+            textposition="outside",
+            cliponaxis=False,
+            hovertemplate="<b>%{y}</b><br>Bed utilization: %{x:.1f}%<extra></extra>",
+        )
+    )
+    fig.add_vline(x=100, line=dict(color=INK, width=1, dash="dot"))
+    fig.update_layout(
+        title=dict(text="City-wide bed utilization", font=dict(size=15, color=INK)),
+        xaxis_title="Projected demand / local capacity",
+        yaxis_title=None,
+        showlegend=False,
+    )
+    fig.update_xaxes(showgrid=True, gridcolor=GRID, rangemode="tozero")
+    return _style(fig, height=300, margin=dict(l=10, r=40, t=42, b=30))
+
+
+def simulation_figure(frame: pd.DataFrame, ward_id: str) -> go.Figure:
+    data = frame.loc[frame["ward_id"] == ward_id].sort_values("week")
+    fig = go.Figure()
+    fig.add_trace(
+        go.Scatter(
+            x=data["target_date"],
+            y=data["baseline_cases"],
+            mode="lines+markers",
+            name="Baseline",
+            line=dict(color=INK, width=2, dash="dot"),
+            hovertemplate="%{x|%d %b}<br>Baseline: %{y:.1f} cases<extra></extra>",
+        )
+    )
+    fig.add_trace(
+        go.Scatter(
+            x=data["target_date"],
+            y=data["intervention_cases"],
+            mode="lines+markers",
+            name="With crews",
+            line=dict(color=GREEN, width=3),
+            fill="tonexty",
+            fillcolor="rgba(47, 125, 74, 0.12)",
+            hovertemplate="%{x|%d %b}<br>Intervention: %{y:.1f} cases<extra></extra>",
+        )
+    )
+    fig.update_layout(
+        title=dict(
+            text=f"Counterfactual · {str(ward_id).replace('_', ' ')}",
+            font=dict(size=15, color=INK),
+        ),
+        yaxis_title="Weekly cases",
+        xaxis_title=None,
+        legend=dict(orientation="h", y=-0.18),
+    )
+    fig.update_yaxes(rangemode="tozero")
+    return _style(fig, height=340)
+
+
 def tier_bar(tier: str, label: str = "") -> str:
     """Small inline HTML chip used in cards and tables."""
     style = config.tier_style(tier)
