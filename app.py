@@ -14,7 +14,7 @@ import streamlit as st
 from ui import theme
 from ui.components import render_footer, render_navbar
 
-ALLOWED_PAGES = ("home", "purpose", "dashboard", "command", "about")
+ALLOWED_PAGES = ("home", "purpose", "dashboard", "command", "assistant", "about")
 
 st.set_page_config(
     page_title="Aedes Sentinel · Team 3AM",
@@ -51,6 +51,10 @@ elif current_page == "command":
     from ui.pages.command import render_command
 
     render_command()
+elif current_page == "assistant":
+    from ui.pages.assistant import render_assistant
+
+    render_assistant()
 else:
     # Lazy import keeps the landing page from loading pandas/sklearn/model artifacts.
     from ui.pages.dashboard import render_dashboard

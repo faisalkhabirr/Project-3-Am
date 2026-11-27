@@ -138,6 +138,14 @@ Prospective ward-level validation, entomological calibration of the efficacy
 curves, a live weather adapter, authentication/audit logging, and a proper
 capacity survey to replace the p75 baseline.
 
+### 19. "Is the assistant an LLM? Does it hallucinate?"
+No. It is a deterministic intent router over the live `AllocationResult`,
+`RoutingResult` and committed metrics. It extracts the ward/city/stock context,
+recomputes only bounded read-only what-ifs, and renders templates with exact
+numbers. Unknown questions get a safe fallback. There is no LLM call, no
+embedding service and no network access. A Commissioner / Hospital-manager role
+changes the guidance wording, not the numbers.
+
 ## Honest limitations to state before judges find them
 
 - Bed capacity and efficacy curves are planning assumptions, not measured data.

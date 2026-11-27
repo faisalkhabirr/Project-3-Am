@@ -7,13 +7,14 @@ from pathlib import Path
 
 import streamlit as st
 
-ALLOWED_PAGES = ("home", "purpose", "dashboard", "command", "about")
+ALLOWED_PAGES = ("home", "purpose", "dashboard", "command", "assistant", "about")
 
 NAV_ITEMS = (
     ("Home", "home"),
     ("Purpose", "purpose"),
     ("Dashboard", "dashboard"),
     ("Command", "command"),
+    ("Assistant", "assistant"),
     ("About Us", "about"),
 )
 
@@ -58,7 +59,7 @@ def render_navbar(current_page: str) -> None:
     """Pill navigation, sticky at the top of the app sheet."""
     with st.container(key="topnav"):
         columns = st.columns(
-            [1.45, 0.78, 0.86, 0.94, 1.02, 0.9, 1.2],
+            [1.35, 0.72, 0.80, 0.90, 0.92, 1.0, 0.90, 1.15],
             gap="small",
             vertical_alignment="center",
         )
@@ -66,7 +67,7 @@ def render_navbar(current_page: str) -> None:
             '<a class="brand" href="?page=home"><span class="brand-mark">3</span>AM</a>',
             unsafe_allow_html=True,
         )
-        for column, (label, page) in zip(columns[1:6], NAV_ITEMS):
+        for column, (label, page) in zip(columns[1:7], NAV_ITEMS):
             active = current_page == page
             if column.button(
                 label,
@@ -75,7 +76,7 @@ def render_navbar(current_page: str) -> None:
                 width="content",
             ):
                 go_to(page)
-        columns[6].markdown(
+        columns[7].markdown(
             '<div class="nav-note"><span class="status-dot"></span>Local · 0 APIs</div>',
             unsafe_allow_html=True,
         )

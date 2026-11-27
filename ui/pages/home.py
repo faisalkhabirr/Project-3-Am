@@ -42,7 +42,7 @@ def render() -> None:
     )
 
     with st.container(key="home_cta"):
-        c1, c2, c3, _ = st.columns([1.15, 1.15, 1.35, 2.0], gap="small")
+        c1, c2, c3, c4 = st.columns([1.1, 1.3, 1.15, 1.1], gap="small")
         if c1.button(
             "Open dashboard",
             key="open_dashboard",
@@ -58,6 +58,13 @@ def render() -> None:
         ):
             go_to("command")
         if c3.button(
+            "Ask the assistant",
+            key="open_assistant",
+            type="primary",
+            width="stretch",
+        ):
+            go_to("assistant")
+        if c4.button(
             "Why we built this",
             key="why_built",
             type="secondary",

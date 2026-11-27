@@ -16,23 +16,25 @@ matches the repo. The app footer prints the current short git hash; leave it vis
 2. Open http://localhost:8501 in Chrome/Edge, clean profile, bookmarks hidden, 100% zoom, F11.
 3. Confirm the footer shows the same hash as `git rev-parse --short=12 HEAD`.
 4. Warm the app once: Home → Dashboard → Command, change a slider, click **Reset demo defaults**
-   on the Command page, then return to the defaults below.
+   on the Command page; then open Assistant, ask one question, and **Clear chat**. Return to the
+   defaults below.
 5. Demo defaults:
    - Dashboard: **Dhaka North**, ward **DNCC Ward 12**, weather through **25 Aug 2025**, **+3 weeks**.
    - Command: **Dhaka North**, **25 Aug 2025**, **+2 weeks**, stock **60%**, crews **8**, capacity **1.20×**.
+   - Assistant: **Commissioner operations**, **Dhaka North**, **DNCC Ward 12**, empty chat.
 6. Have a terminal window ready with the repo root for the offline proof and `git log`.
 7. Disable notifications; use a headset mic; record the browser window only. Windows Game Bar
    (`Win+Alt+R`) or OBS, no editing.
 
 ## Script (target 6:40)
 
-### 0:00–0:30 — Hook and claim (Home)
+### 0:00–0:25 — Hook and claim (Home)
 > "Dengue outbreaks in Bangladesh peak weeks after the monsoon. A forecast is only useful if a
 > ward commissioner can turn it into saline, beds, crews and a dispatch notice. This is Aedes
 > Sentinel — Team 3AM's Phase 2 command system. Everything you are about to see runs locally, with
 > zero API calls. I will prove that by cutting the network at the end."
 
-### 0:30–1:15 — Forecast (Dashboard)
+### 0:25–1:05 — Forecast (Dashboard)
 > "The model is trained from the onsite file; the three supply targets are excluded from its
 > inputs, so the validated metrics are unchanged: Poisson gradient boosting, MAE 1.05 on the
 > untouched 2024–25 holdout, beating seasonal-naive and persistence. Here is DNCC Ward 12 at a
@@ -40,7 +42,7 @@ matches the repo. The app footer prints the current short git hash; leave it vis
 > four-week humidity, seasonality, and rainfall in the two-to-four-week lag window. That is the
 > warning. Now the operations."
 
-### 1:15–2:15 — Constrained allocation (Command → Allocate)
+### 1:05–2:00 — Constrained allocation (Command → Allocate)
 > "I switch to the Command Center. Sixty wards, Dhaka North selected, 60% of regional stock, eight
 > crews. The engine converts predicted cases to saline, kits and beds using the exact dataset
 > conversions — 2.385 bags per case, 1.167 kits, 30% admission. It protects a ten-percent floor
@@ -54,7 +56,7 @@ matches the repo. The app footer prints the current short git hash; leave it vis
 > The city roll-up and the ward ledger update in under a second. No solver, no API, deterministic
 > math."
 
-### 2:15–3:05 — Overflow routing (Command → Overflow)
+### 2:00–2:45 — Overflow routing (Command → Overflow)
 > "Beds are the next constraint. The dataset has no bed capacity, so we use a transparent planning
 > baseline: each ward's historical 75th-percentile weekly bed demand, minimum two beds. A
 > capacity multiplier lets a judge stress-test it. At 1.2×, the router makes seven intra-city
@@ -63,7 +65,7 @@ matches the repo. The app footer prints the current short git hash; leave it vis
 > utilization. If I drop the multiplier, every city escalates — that is the regional exhaustion
 > flag."
 
-### 3:05–4:35 — Counterfactual simulator (Command → Simulate)
+### 2:45–4:05 — Counterfactual simulator (Command → Simulate)
 > "Now the what-if. I select three wards, two larvicide crews each, start week one, four-week
 > horizon, and run. This is not a hardcoded percentage: the simulator rewrites breeding-habitat
 > or transmission features, re-runs the serialized model, and feeds each prediction back into
@@ -72,24 +74,33 @@ matches the repo. The app footer prints the current short git hash; leave it vis
 > per crew — and the three-ward package prevents about 12.1 cases. The ROI table ranks every
 > ward. Zero crews reproduces the baseline exactly, and that is a unit test."
 
-### 4:35–5:25 — Dispatch (Command → Dispatch)
+### 4:05–4:45 — Dispatch (Command → Dispatch)
 > "One click turns the allocation into field language. The SMS is under 160 characters: ward,
 > cases, saline, kits, beds, crews, deficit and overflow. The WhatsApp message is formatted for a
 > phone. The printable brief is a self-contained HTML page with the same numbers, ready for the
 > commissioner's printer. All three come from one validated set of values, with no LLM and no
 > network call. The packet also exports to the /exports folder for the repo."
 
-### 5:25–6:15 — Offline kill switch (terminal)
+### 4:45–5:25 — Application-aware assistant (Assistant)
+> "This is the field assistant — not a generic chatbot, and no external API. It answers from the
+> current scenario. I can ask: 'Why is my ward short?' — it shows the exact supplies, crew gap and
+> next action. 'Where do overflow patients go?' — the transfer list. 'What if stock drops to 30%?'
+> — a read-only recomputation. 'How accurate is the forecast?' — MAE 1.054 and 81.5% interval
+> coverage. I switch to the hospital-manager view; the guidance changes, the numbers do not."
+>
+> **Ask two questions and switch the role once.**
+
+### 5:25–6:05 — Offline kill switch (terminal)
 > "Here is the resilience proof. I am going to block the sockets, then run the entire pipeline:
-> forecast, allocation, routing, simulation and dispatch."
+> forecast, allocation, routing, assistant, simulation and dispatch."
 >
 > **Run `python scripts/offline_check.py`.** Let the PASS line land.
 >
 > "Sockets blocked. Sixty wards forecast, 749 of 1,249 saline bags allocated, seven transfers,
-> cases prevented, fifteen dispatch files — all offline. If any module reached for the network,
-> this script would fail."
+> an assistant answer, cases prevented, fifteen dispatch files — all offline. If any module
+> reached for the network, this script would fail."
 
-### 6:15–6:45 — Close and commit hash
+### 6:05–6:35 — Close and commit hash
 > "The repo is the same Phase 1 repository, with continuous per-module commits and a
 > version-onsite-final tag. The footer prints the build hash; let me show it matches."
 >

@@ -251,6 +251,25 @@ and `socket.getaddrinfo`, then runs forecast → allocation → routing →
 simulation → dispatch to completion. This is the live kill-switch proof: if any
 module silently reached for the network, the script would fail.
 
+### 6A.5 Application-aware assistant
+
+`src/operations/assistant.py` is a deterministic, read-only Q&A layer. It is
+**not** a generative LLM:
+
+- intent routing + entity extraction (ward, city, stock %, crews);
+- answers read from `AllocationResult`, `RoutingResult`, committed metrics and
+  the verified supply conversion;
+- stock what-ifs call `allocate()` on the current demands but never mutate the
+  app state;
+- a Commissioner / Hospital-manager role changes the operational guidance, not
+  the numbers;
+- unknown questions fall back to suggested topics instead of inventing facts.
+
+The Streamlit page is a Messenger-style chat with the current scenario pinned in
+context chips. No network call, no embeddings service and no model download are
+involved; `scripts/offline_check.py` includes an assistant answer in the
+socket-blocked proof.
+
 ---
 
 ## 7. Compute & API cost controls
@@ -265,6 +284,7 @@ module silently reached for the network, the script would fail.
 | Phase 2 allocation / routing | Pure NumPy/pandas water-filling and greedy matching; no MILP solver, no external service. |
 | Phase 2 simulation | A few dozen local `model.predict()` calls per ward-week; no GPU and no LLM. |
 | Dispatch | `str`/HTML templates, capped SMS; zero tokens and zero network calls. |
+| Assistant | Deterministic intent router over local state; zero LLM tokens, zero network calls. |
 | Offline proof | `scripts/offline_check.py` runs the full pipeline with sockets blocked. |
 | Driver explanation | Local single-feature occlusion (≈30 predictions), no SHAP/numba dependency and no external service. |
 | LLM usage | **None in the product loop.** No token spend per prediction, per render or per user. The team used AI coding assistants during development only. |

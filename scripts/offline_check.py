@@ -35,6 +35,8 @@ def _blocked(*args, **kwargs):
 from src import config, inference
 from src import data_access as data
 from src.operations.allocation import WardDemand, allocate
+from src.operations.assistant import AssistantContext
+from src.operations.assistant import answer as assistant_answer
 from src.operations.dispatch import build_notice, write_exports
 from src.operations.routing import (
     capacity_scaled,
@@ -95,6 +97,27 @@ def main() -> int:
         f"{sum(routing.net_deficits.values())} unrouted beds"
     )
 
+    assistant_context = AssistantContext(
+        role="commissioner",
+        city=str(allocation.per_ward.iloc[0]["city"]),
+        ward_id=str(allocation.per_ward.iloc[0]["ward_id"]),
+        as_of=as_of,
+        horizon=2,
+        stock_frac=0.60,
+        total_crews=8,
+        capacity_mult=1.20,
+        conservative=False,
+        allocation=allocation,
+        routing=routing,
+        demands=demands,
+        metrics=bundle.get("metrics") or {},
+        bed_capacity=capacity,
+        bed_demand=bed_demand,
+        interval_coverage=None,
+    )
+    assistant_reply = assistant_answer("Why is my ward short?", assistant_context)
+    print(f"  assistant: {assistant_reply.intent} answer generated offline")
+
     top = allocation.per_ward.sort_values("priority", ascending=False).head(2)
     simulation = simulate(
         [Deployment(str(ward), "larvicide", 2, 1) for ward in top["ward_id"]],
@@ -135,7 +158,7 @@ def main() -> int:
         written = write_exports(notices, Path(tmp))
     print(f"  dispatch: {len(written)} files built with sockets blocked")
 
-    print("\nPASS — forecasting, allocation, routing, simulation and dispatch ran offline.")
+    print("\nPASS — forecasting, allocation, routing, assistant, simulation and dispatch ran offline.")
     return 0
 
 

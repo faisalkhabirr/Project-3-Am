@@ -53,8 +53,8 @@
 | **Coverage** | 60 wards, 5 cities, 2016–2025, weekly resolution. |
 | **Model** | `HistGradientBoostingRegressor(loss="poisson")`, 32 features, serialized with joblib. |
 | **Holdout** | MAE **1.05**, RMSE **2.10** cases per ward-week across all horizons (0.98 at +1 week); seasonal-naive 1.69; persistence 1.41 at +1 week / 1.75 across horizons. |
-| **Phase 2** | Constrained allocation, intra-city overflow routing, model-driven crew counterfactuals, offline SMS/WhatsApp/print dispatch. |
-| **Interface** | Streamlit, five pages, local CPU, **0 runtime APIs**. |
+| **Phase 2** | Constrained allocation, intra-city overflow routing, model-driven crew counterfactuals, offline dispatch and a read-only grounded assistant. |
+| **Interface** | Streamlit, six pages, local CPU, **0 runtime APIs**. |
 | **Team** | Team 3AM. |
 
 ---
@@ -67,7 +67,7 @@ Script: [`docs/DEMO_SCRIPT_PHASE2.md`](docs/DEMO_SCRIPT_PHASE2.md)
 **Phase 1 remote qualifier (3:00):** _link added before submission._
 Script: [`docs/DEMO_SCRIPT.md`](docs/DEMO_SCRIPT.md)
 
-**Q&A preparation:** [`docs/QA_DEFENSE.md`](docs/QA_DEFENSE.md) — 18 rehearsed questions
+**Q&A preparation:** [`docs/QA_DEFENSE.md`](docs/QA_DEFENSE.md) — 19 rehearsed questions
 with the exact numbers and the honest assumptions behind them.
 
 <!-- Replace the lines above with unlisted YouTube/Drive links before submission. -->
@@ -117,7 +117,7 @@ uv pip install --python .venv/bin/python -r requirements.txt
 
 ## The app
 
-The app has five pages, connected by the fixed pill navigation and the footer:
+The app has six pages, connected by the fixed pill navigation and the footer:
 
 | Page | What it does |
 |---|---|
@@ -125,6 +125,7 @@ The app has five pages, connected by the fixed pill navigation and the footer:
 | **Purpose** | Why dengue early warning matters in Bangladesh, the breeding clock, hyper-local vulnerability, and who the tool helps. |
 | **Dashboard** | The working analytical page: ward risk, forecast, drivers, vulnerability, city ranking, heatmap, validation and method/cost tabs. |
 | **Command Center** | Phase 2 operations: scarcity-aware allocation, intra-city overflow routing, counterfactual crew simulation and offline dispatch exports. |
+| **Assistant** | Messenger-style, read-only assistant grounded in the live scenario: ward gaps, overflow routes, supply math, crew priority, stock what-ifs and model calibration. Commissioner / hospital-manager wording. |
 | **About Us** | Team 3AM, roles, and the project-info card (model, coverage, runtime). |
 
 The landing page opens first. Click **Open dashboard**, use the nav pill, or open
@@ -149,15 +150,21 @@ The landing page opens first. Click **Open dashboard**, use the nav pill, or ope
 
 ## Phase 2 command center
 
-The onsite layer turns the forecast into a Monday-morning operating picture. It is a fifth
-Streamlit page and is entirely local.
+The onsite layer turns the forecast into a Monday-morning operating picture. It is a
+dedicated set of pages and is entirely local.
 
-| Tab | What it does |
+| Page / tab | What it does |
 |---|---|
 | **Allocate** | Converts predicted cases to saline, kits and beds with the verified dataset formulas, then allocates under a **30–100% regional stock** slider. Every ward gets a protected 10% floor; the remainder is water-filled by risk tier × population density. Deficit badges and city roll-ups update live. A **conservative planning** toggle sizes demand against the 80% upper interval. |
 | **Overflow** | Derives each ward's bed capacity from its historical 75th-percentile weekly demand (minimum 2 beds), then routes deficits to lower-burden wards **inside the same city**. Shows transfers, net deficits, city utilization and a regional escalation flag when a whole city is exhausted. A capacity multiplier lets judges stress-test the router. |
 | **Simulate** | Deploy larvicide or fogging crews to selected wards for 2–4 weeks. The simulator rewrites the relevant feature block, re-runs the serialized model, feeds predictions back into next week's case lags, and ranks wards by **cases prevented per crew**. Zero crews reproduces the baseline exactly. |
 | **Dispatch** | Builds a ≤160-character SMS, a WhatsApp message and a printable HTML commissioner brief from the same allocation. Exports to `/exports`; no LLM or network call is involved. |
+
+**Assistant.** A separate Messenger-style page answers read-only questions from the current
+scenario: “Why is my ward short?”, “Where does overflow go?”, “What if stock is 30%?”, “How
+accurate is the forecast?”. It uses a deterministic intent router over the live allocation,
+routing and committed metrics — no LLM and no external API. A Commissioner / Hospital-manager
+toggle changes the guidance without changing the numbers.
 
 **Allocation rule.** `allocate()` is pure and deterministic: protected floor → strict priority
 water-filling → integer units. The invariant tests prove monotonicity (more stock never reduces
@@ -171,7 +178,8 @@ adult-mosquito index, fogging scales the case-history and vector-pressure proxy;
 assumption is documented in the module docstring and in Q&A.
 
 **Offline proof.** `python scripts/offline_check.py` blocks sockets, then runs forecast →
-allocation → routing → simulation → dispatch to completion. It is the live kill-switch test.
+allocation → routing → assistant → simulation → dispatch to completion. It is the live
+kill-switch test.
 
 **Accuracy proof.** `python scripts/verify_accuracy.py` prints per-horizon MAE/RMSE, bias and
 empirical 80% interval coverage, and exits non-zero if the model fails to beat either baseline
@@ -367,9 +375,9 @@ Expected: `PASS — inference path is healthy.`
 | Model + inference path | `python scripts/smoke_test.py` | PASS |
 | Phase 2 supply audit | `python scripts/verify_supply_formulas.py` | PASS, 31,320/31,320 rows per column |
 | Forecast accuracy + calibration | `python scripts/verify_accuracy.py` | PASS, MAE 1.054, 80% coverage 81.5% |
-| Engine invariants | `python -m unittest discover` | PASS, 22 tests |
+| Engine invariants | `python -m unittest discover` | PASS, 36 tests |
 | Offline kill-switch | `python scripts/offline_check.py` | PASS with sockets blocked |
-| Headless UI flow | `python scripts/ui_smoke_test.py` | Home → Command → 30% stress → counterfactual, no exceptions |
+| Headless UI flow | `python scripts/ui_smoke_test.py` | Home → Command → 30% stress → counterfactual → Assistant chat, no exceptions |
 | Dispatch samples | `python scripts/export_dispatch_samples.py` | 24 files in `exports/` |
 
 The UI tests explicitly cover the three dashboard tabs, the preserved widget keys
@@ -385,7 +393,7 @@ app.py                      thin router: theme, nav, page dispatch
 ui/
   theme.py                  palette, CSS variables, animations
   components.py             navbar, footer, navigation helpers
-  pages/                    Home, Purpose, Dashboard, Command, About
+  pages/                    Home, Purpose, Dashboard, Command, Assistant, About
 src/
   config.py                 paths, labels, tier colours
   data_access.py            cached data loaders + ward context
@@ -397,6 +405,7 @@ src/
     routing.py              intra-city overflow routing + capacity baseline
     simulation.py           model-driven crew counterfactuals
     dispatch.py             SMS / WhatsApp / printable HTML templates
+    assistant.py            deterministic, application-aware Q&A
   data/                     real-data feature pipeline
   model/                    real-data training + artifact export
 data/
@@ -425,6 +434,7 @@ tests/
   test_supplies.py          supply conversion + full dataset reproduction
   test_operations.py        allocation, routing, simulation, dispatch invariants
   test_pipeline.py          onsite training source, no supply leakage, causal lags
+  test_assistant.py         intent routing, role wording, read-only what-if
 docs/
   home.png                  landing page screenshot
   dashboard.png             dashboard screenshot
@@ -498,7 +508,7 @@ criteria. AI-assisted code was reviewed and tested by the team before submission
 
 | Tool / API | Used for | Runtime dependency? |
 |---|---|---|
-| **OpenCode (DeepSeek V4.1 Flash)** | Coding assistant: Streamlit dashboard, Phase 2 allocation/routing/simulation/dispatch engines, data-access/inference modules, documentation, integration review | No |
+| **OpenCode (DeepSeek V4.1 Flash)** | Coding assistant: Streamlit dashboard, Phase 2 allocation/routing/simulation/dispatch/assistant engines, data-access/inference modules, documentation, integration review | No |
 | **Gemini Notebook / NotebookLM (Google)** | Analyzing the hackathon brief and rubric, drafting architecture rationale, rubric-compliance checks, Git workflow assistance | No |
 | **Claude (Anthropic)** | Feature-lag pipeline logic, ML code refactoring, Streamlit UI design structure | No |
 | **ChatGPT (OpenAI)** | Feature-lag pipeline logic, ML code refactoring, Streamlit UI design structure | No |

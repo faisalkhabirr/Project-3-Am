@@ -74,7 +74,39 @@ def main() -> int:
     if not any("ROI" in str(block.value) or "Intervention" in str(block.value) for block in at.markdown):
         print("WARN: ROI heading not detected", file=sys.stderr)
 
-    print("PASS — Home, Command Center, 30% stress test and counterfactual render without exceptions.")
+    assistant = next((button for button in at.button if button.label == "Assistant"), None)
+    if assistant is None:
+        print("FAIL: Assistant nav button not found", file=sys.stderr)
+        return 1
+    assistant.click()
+    at.run()
+    if at.exception:
+        for exc in at.exception:
+            print(f"FAIL assistant page: {exc.value}", file=sys.stderr)
+        return 1
+    if not at.chat_input:
+        print("FAIL: assistant chat input not found", file=sys.stderr)
+        return 1
+    at.chat_input[0].set_value("Why is my ward short?").run()
+    if at.exception:
+        for exc in at.exception:
+            print(f"FAIL assistant answer: {exc.value}", file=sys.stderr)
+        return 1
+
+    role = next((box for box in at.selectbox if box.label == "View as"), None)
+    if role is not None:
+        role.set_value("Hospital surge")
+        at.run()
+        at.chat_input[0].set_value("What should I do first?").run()
+        if at.exception:
+            for exc in at.exception:
+                print(f"FAIL assistant role switch: {exc.value}", file=sys.stderr)
+            return 1
+
+    print(
+        "PASS — Home, Command Center, 30% stress, counterfactual and Assistant "
+        "chat render without exceptions."
+    )
     return 0
 
 

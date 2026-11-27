@@ -66,13 +66,14 @@ def render() -> None:
     weather and dengue surveillance. The app maps each prediction to a ward-specific
     risk tier, an 80% interval and a local driver breakdown. The Phase 2 command
     center turns that forecast into constrained supplies, intra-city overflow
-    routing, counterfactual crew simulation and offline field dispatch.
+    routing, counterfactual crew simulation and offline field dispatch. A read-only
+    assistant answers questions from the live scenario without an external API.
   </p>
   <div class="project-grid">
     <div class="project-item"><b>Poisson HistGBR</b><span>Weekly cases, 1–4 week horizons</span></div>
     <div class="project-item"><b>60 wards · 5 cities</b><span>2016–2025, weekly resolution</span></div>
     <div class="project-item"><b>Phase 2 operations</b><span>Allocate · route · simulate · dispatch</span></div>
-    <div class="project-item"><b>0 runtime APIs</b><span>Bundled data + serialized model</span></div>
+    <div class="project-item"><b>Field assistant</b><span>Read-only · grounded · offline</span></div>
   </div>
   <div class="chip-row">
     <span class="chip">Python</span>
