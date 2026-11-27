@@ -4,7 +4,7 @@ Week of 08 Sep 2025 · *Critical* · 11.1 expected cases
 Saline: 27 / 27 ✅
 Kits: 13 / 13 ✅
 Beds: 3 / 3 ✅
-Crews: 0 / 4 assigned
+Crews: 0 / 4 assigned ⚠️ deficit
 Overflow: none · city headroom available
 
 Scarcity scenario: 60% regional stock, 8 crews, 1.20x bed capacity. Verify against the ward register before dispatch.

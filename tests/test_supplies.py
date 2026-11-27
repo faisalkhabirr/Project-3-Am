@@ -10,8 +10,6 @@ import pandas as pd
 from src import config
 from src.operations.supplies import cases_to_supplies, supplies_for_cases
 
-ROOT = Path(__file__).resolve().parents[1]
-
 
 class CasesToSuppliesTest(unittest.TestCase):
     def test_zero(self) -> None:
