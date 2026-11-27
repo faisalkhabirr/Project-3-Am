@@ -152,7 +152,7 @@ Streamlit page and is entirely local.
 |---|---|
 | **Allocate** | Converts predicted cases to saline, kits and beds with the verified dataset formulas, then allocates under a **30–100% regional stock** slider. Every ward gets a protected 10% floor; the remainder is water-filled by risk tier × population density. Deficit badges and city roll-ups update live. A **conservative planning** toggle sizes demand against the 80% upper interval. |
 | **Overflow** | Derives each ward's bed capacity from its historical 75th-percentile weekly demand (minimum 2 beds), then routes deficits to lower-burden wards **inside the same city**. Shows transfers, net deficits, city utilization and a regional escalation flag when a whole city is exhausted. A capacity multiplier lets judges stress-test the router. |
-| **Simulate** | Deploy larvicide or fogging crews to selected wards for 2–4 weeks. The simulator rewrites the relevant feature block, re-runs the serialized Phase 1 model, feeds predictions back into next week's case lags, and ranks wards by **cases prevented per crew**. Zero crews reproduces the baseline exactly. |
+| **Simulate** | Deploy larvicide or fogging crews to selected wards for 2–4 weeks. The simulator rewrites the relevant feature block, re-runs the serialized model, feeds predictions back into next week's case lags, and ranks wards by **cases prevented per crew**. Zero crews reproduces the baseline exactly. |
 | **Dispatch** | Builds a ≤160-character SMS, a WhatsApp message and a printable HTML commissioner brief from the same allocation. Exports to `/exports`; no LLM or network call is involved. |
 
 **Allocation rule.** `allocate()` is pure and deterministic: protected floor → strict priority
@@ -173,7 +173,9 @@ allocation → routing → simulation → dispatch to completion. It is the live
 
 ## Dataset
 
-The official Phase 1 dataset is bundled at `data/raw/dengue_weather.csv`:
+The Phase 1 columns are bundled at `data/raw/dengue_weather.csv`. The **training and
+operational source of truth is `data/raw/dengue_onsite.csv`**, which contains the same
+31,320 ward-weeks plus three supply targets:
 
 | Column | Description |
 |---|---|
@@ -195,7 +197,7 @@ The official Phase 1 dataset is bundled at `data/raw/dengue_weather.csv`:
 
 Data source: [Hackathon Phase 1 dataset](https://docs.google.com/spreadsheets/d/1QFI0ACJRvJQkiQT3LfGHklM3g4PgaJWUt8xSVU07NIE/edit?usp=sharing).
 
-To refresh the bundled file (one-time, not needed to run the app):
+To refresh the Phase 1 provenance copy (not the training source):
 
 ```bash
 python scripts/fetch_data.py --force
@@ -213,10 +215,12 @@ ward-weeks plus three operational targets. We verified that each target is a
 | `diagnostic_kits_needed` | `round_half_down(7/6 × cases)` | 1 test per case + confirmatory buffer |
 | `hospital_beds_required` | `round_half_down(0.3 × cases)` | 30% of cases need admission |
 
-Because cases and weather are byte-identical to Phase 1, **the validated model
-is not retrained**; it feeds the operational layer unchanged. The conversion
-lives in `src/operations/supplies.py` and is audited by
-`python scripts/verify_supply_formulas.py`.
+Because cases and weather are byte-identical to Phase 1, the model is **trained from
+the onsite file** and the three supply columns are **excluded from the model inputs**
+(`tests/test_pipeline.py` guards this). The resulting `features.csv`, model artifact
+and test predictions are byte-identical to the Phase 1 build; only the `trained_at`
+timestamp changes. The conversion lives in `src/operations/supplies.py` and is audited
+by `python scripts/verify_supply_formulas.py`.
 
 > Phase 2 build marker: **BLUEPINE**.
 
@@ -316,7 +320,7 @@ does not require a second model.
 |---|---|
 | **Intended use** | Ward-level planning for vector control, larvicide/spraying and hospital readiness. |
 | **Not intended for** | Clinical diagnosis, individual patient decisions, or real-time outbreak confirmation. |
-| **Data** | Weekly aggregate weather and surveillance, 2016–2025. |
+| **Data** | Weekly aggregate weather and surveillance from the onsite file, 2016–2025; supply targets excluded from model inputs. |
 | **Model** | Poisson HistGradientBoosting, 32 features, joblib artifact. |
 | **Metrics** | MAE 1.05 / RMSE 2.10 cases per ward-week; beats seasonal and persistence baselines. |
 | **Limitations** | Historical data, weekly resolution, no ward geometry, no live weather feed. See [Limitations](#limitations). |
@@ -333,7 +337,7 @@ not comparable. The folder's README documents why it was not shipped.
 The exact artifacts in `models/` are reproducible from the committed pipeline:
 
 ```bash
-python -m src.data.build_features     # raw CSV → data/processed/features.csv
+python -m src.data.build_features     # onsite CSV → features.csv (supply targets excluded)
 python -m src.model.train             # features → models/ + metrics.json
 ```
 
@@ -354,7 +358,7 @@ Expected: `PASS — inference path is healthy.`
 | Data / lag integrity | `python scripts/verify_lags.py` | PASS |
 | Model + inference path | `python scripts/smoke_test.py` | PASS |
 | Phase 2 supply audit | `python scripts/verify_supply_formulas.py` | PASS, 31,320/31,320 rows per column |
-| Engine invariants | `python -m unittest discover` | PASS, 19 tests |
+| Engine invariants | `python -m unittest discover` | PASS, 22 tests |
 | Offline kill-switch | `python scripts/offline_check.py` | PASS with sockets blocked |
 | Headless UI flow | `python scripts/ui_smoke_test.py` | Home → Command → 30% stress → counterfactual, no exceptions |
 | Dispatch samples | `python scripts/export_dispatch_samples.py` | 24 files in `exports/` |
@@ -387,8 +391,8 @@ src/
   data/                     real-data feature pipeline
   model/                    real-data training + artifact export
 data/
-  raw/dengue_weather.csv    bundled official Phase 1 dataset
-  raw/dengue_onsite.csv     Phase 2 dataset (+ supply targets)
+  raw/dengue_weather.csv    bundled Phase 1 columns (provenance)
+  raw/dengue_onsite.csv     Phase 2 training + operations source (+ 3 supply targets)
   processed/features.csv    engineered ward/week/horizon features
 exports/                    sample SMS / WhatsApp / printable briefs
 models/
@@ -410,6 +414,7 @@ scripts/
 tests/
   test_supplies.py          supply conversion + full dataset reproduction
   test_operations.py        allocation, routing, simulation, dispatch invariants
+  test_pipeline.py          onsite training source, no supply leakage, causal lags
 docs/
   home.png                  landing page screenshot
   dashboard.png             dashboard screenshot
@@ -523,7 +528,7 @@ above.
 | `streamlit: command not found` | Activate the venv first: `source .venv/bin/activate` (Windows: `.venv\Scripts\Activate.ps1`). |
 | Port 8501 already in use | `streamlit run app.py --server.port 8502`. |
 | “Model handoff pending” banner | The serialized artifacts are missing; restore `models/` and `data/processed/features.csv`, or run the training pipeline. |
-| App starts but no data | Confirm `data/raw/dengue_weather.csv` exists; re-run `python scripts/fetch_data.py`. |
+| App starts but no data | Confirm `data/raw/dengue_onsite.csv` exists; the training and operational loaders use it by default. |
 | Charts blank for a few seconds | The first dashboard render loads the feature table/model; wait for the warm-up and refresh once. |
 | Slow dependency install | Use the uv fast path above, or a faster network; the app itself starts in seconds. |
 

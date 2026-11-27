@@ -20,7 +20,7 @@ import numpy as np
 import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[1]
-RAW_PATH = ROOT / "data" / "raw" / "dengue_weather.csv"
+RAW_PATH = ROOT / "data" / "raw" / "dengue_onsite.csv"
 FEATURES_PATH = ROOT / "data" / "processed" / "features.csv"
 
 WARD = "ward_id"

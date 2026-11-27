@@ -6,7 +6,7 @@ This is a counterfactual, not a percentage toggle. For every simulated week we:
 2. rewrite the case-history features with the arm's simulated history,
 3. apply the intervention's feature-level effect (larvicide -> breeding-habitat
    features; fogging -> transmission pressure / case history),
-4. re-run the **serialized Phase 1 model**,
+4. re-run the **serialized model**,
 5. feed the prediction back into next week's case lags.
 
 The two arms therefore diverge through the same model the dashboard uses. The

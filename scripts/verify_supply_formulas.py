@@ -156,7 +156,10 @@ def main() -> int:
                 if not check[col].equals(check[f"{col}_phase1"]):
                     _fail(f"{col} differs from Phase 1", failures)
             if not failures:
-                print("  PASS cases and weather are identical to Phase 1 (no retraining)")
+                print(
+                    "  PASS cases and weather are identical to Phase 1 "
+                    "(supply targets excluded from model inputs)"
+                )
     else:
         print(f"  SKIP Phase 1 file not found at {args.raw}")
 

@@ -168,7 +168,10 @@ def build_features(
 
     features = pd.concat(frames, ignore_index=True)
     features = features.sort_values([WARD, DATE, HORIZON]).reset_index(drop=True)
-    ordered = [WARD, CITY, DATE, HORIZON, "target_date", "target_cases"] + MODEL_FEATURES
+    ordered = (
+        [WARD, CITY, DATE, HORIZON, "target_date", "target_cases"]
+        + [column for column in MODEL_FEATURES if column != HORIZON]
+    )
     return features[ordered]
 
 
@@ -177,8 +180,8 @@ def main(argv: Iterable[str] | None = None) -> int:
     parser.add_argument(
         "--raw",
         type=Path,
-        default=ROOT / "data" / "raw" / "dengue_weather.csv",
-        help="raw ward-week CSV",
+        default=ROOT / "data" / "raw" / "dengue_onsite.csv",
+        help="raw ward-week CSV (onsite dataset; supply columns are ignored)",
     )
     parser.add_argument(
         "--out",

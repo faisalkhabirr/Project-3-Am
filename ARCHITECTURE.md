@@ -31,8 +31,10 @@ calls the network; the dataset and model are committed, so a fresh clone launche
 
 ## 3. Feature pipeline
 
-The pipeline is implemented in `src/data/build_features.py` and exported as
-`data/processed/features.csv` with one row per **(ward, as-of week, horizon)**.
+The pipeline is implemented in `src/data/build_features.py`, reads
+`data/raw/dengue_onsite.csv`, and exports `data/processed/features.csv` with one row
+per **(ward, as-of week, horizon)**. The three supply targets are deliberately excluded
+from the model inputs.
 
 | Feature group | Examples | Purpose |
 |---|---|---|
@@ -153,9 +155,12 @@ Three properties matter for the operational layer:
 - **Single source of truth.** `src/operations/supplies.py` is the only place
   cases become supply. Allocation, routing, simulation and dispatch import it,
   so the modules cannot drift apart.
-- **No retraining.** Cases and weather are byte-identical to the Phase 1 file;
-  only deterministic targets were appended. The holdout-validated forecaster is
-  reused unchanged, preserving the reported MAE/RMSE and interval calibration.
+- **Train from the onsite file, no target leakage.** `build_features.py` and
+  `train.py` default to `data/raw/dengue_onsite.csv`. The three supply targets are
+  excluded from `MODEL_FEATURES` (guarded by `tests/test_pipeline.py`), so the model
+  is identical to the Phase 1 validation: features, artifact and test predictions are
+  byte-identical; only `trained_at` changes. MAE/RMSE and interval calibration are
+  preserved.
 - **Smooth forecasts.** Fractional model predictions are converted directly,
   so demand scales continuously before integer rounding. Zero cases map to zero
   supply, and saline ≥ kits ≥ beds holds for every observed row.
@@ -170,7 +175,7 @@ monotonicity and the full onsite reproduction (`python -m unittest discover`).
 
 ```mermaid
 flowchart LR
-    A[Phase 1 model<br/>4-week forecast] --> B[Supply conversion<br/>saline · kits · beds]
+    A[Validated forecaster<br/>4-week forecast] --> B[Supply conversion<br/>saline · kits · beds]
     B --> C[Constrained allocation<br/>30–100% stock + crews]
     C --> D[Intra-city overflow<br/>routing + escalation]
     C --> E[Counterfactual simulator<br/>larvicide / fogging]
@@ -222,7 +227,7 @@ The simulator does not apply a hardcoded percentage. For each simulated week it:
    larvicide scales breeding-habitat features (`rain_lag_*`, `rain_cum_*`,
    effective waterlogging risk), fogging scales case-history and the
    vector-pressure proxy;
-4. re-runs the **serialized Phase 1 model**;
+4. re-runs the **serialized model**;
 5. feeds the prediction back into next week's case lags.
 
 Downstream beds and saline use the same verified conversion. Efficacy curves are

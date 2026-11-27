@@ -33,7 +33,8 @@ matches the repo. The app footer prints the current short git hash; leave it vis
 > zero API calls. I will prove that by cutting the network at the end."
 
 ### 0:30–1:15 — Forecast (Dashboard)
-> "The Phase 1 model is unchanged and still validated: Poisson gradient boosting, MAE 1.05 on the
+> "The model is trained from the onsite file; the three supply targets are excluded from its
+> inputs, so the validated metrics are unchanged: Poisson gradient boosting, MAE 1.05 on the
 > untouched 2024–25 holdout, beating seasonal-naive and persistence. Here is DNCC Ward 12 at a
 > three-week horizon: about twelve cases, High tier, an 80% interval, and the drivers behind it —
 > four-week humidity, seasonality, and rainfall in the two-to-four-week lag window. That is the
@@ -65,8 +66,8 @@ matches the repo. The app footer prints the current short git hash; leave it vis
 ### 3:05–4:35 — Counterfactual simulator (Command → Simulate)
 > "Now the what-if. I select three wards, two larvicide crews each, start week one, four-week
 > horizon, and run. This is not a hardcoded percentage: the simulator rewrites breeding-habitat
-> features, re-runs the serialized Phase 1 model, and feeds each prediction back into next week's
-> case lags. The baseline dotted line is what happens without crews; the green line is the
+> or transmission features, re-runs the serialized model, and feeds each prediction back into
+> next week's case lags. The baseline dotted line is what happens without crews; the green line is the
 > counterfactual. Here the top ward prevents about 5.7 cases over four weeks — roughly 2.8 cases
 > per crew — and the three-ward package prevents about 12.1 cases. The ROI table ranks every
 > ward. Zero crews reproduces the baseline exactly, and that is a unit test."

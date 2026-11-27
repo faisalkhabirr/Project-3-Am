@@ -1,6 +1,6 @@
 {
   "model_name": "HistGradientBoostingRegressor (Poisson)",
-  "trained_at": "2026-11-21",
+  "trained_at": "2026-11-27",
   "features": [
     "horizon_weeks",
     "avg_temp_c",

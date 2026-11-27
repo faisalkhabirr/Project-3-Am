@@ -12,6 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 # ---------------------------------------------------------------------------
 RAW_DATA = ROOT / "data" / "raw" / "dengue_weather.csv"
 ONSITE_RAW = ROOT / "data" / "raw" / "dengue_onsite.csv"
+TRAIN_RAW = ONSITE_RAW
 PROCESSED_DIR = Path(os.getenv("PROCESSED_DIR", str(ROOT / "data" / "processed")))
 FEATURES = PROCESSED_DIR / "features.csv"
 MODEL_DIR = Path(os.getenv("MODEL_DIR", str(ROOT / "models")))

@@ -28,11 +28,14 @@ reverse-engineered each target and verified it row-for-row:
 recomputes all three on all 31,320 rows and exits non-zero on any mismatch. It
 also proves cases and weather are byte-identical to Phase 1.
 
-### 2. "Why not retrain the model on the new columns?"
-Because they are deterministic functions of `dengue_cases`. There is no new
-predictive information, and retraining would discard the untouched 2024–25
-holdout result and the calibrated intervals. The validated Phase 1 forecaster
-stays frozen and feeds the operational layer.
+### 2. "Does the model train on the new onsite file?"
+Yes. `build_features.py` and `train.py` default to
+`data/raw/dengue_onsite.csv`. The three supply targets are deterministic functions of
+`dengue_cases`, so they are **excluded from `MODEL_FEATURES`** (guarded by
+`tests/test_pipeline.py`). Training from the onsite file therefore produces the same
+features, model artifact and test predictions as the Phase 1 build — byte-identical,
+with only `trained_at` changing — preserving the untouched 2024–25 holdout result
+and calibrated intervals.
 
 ### 3. "How does allocation prioritise when stock is scarce?"
 Priority = `0.65 × tier_rank + 0.35 × density_norm`, where density is normalised
@@ -77,7 +80,7 @@ deficit. If a city cannot absorb its own demand, it is added to
 It rewrites the model's actual feature vector — larvicide scales breeding-habitat
 features (`rain_lag_*`, `rain_cum_*`, effective waterlogging risk); fogging
 scales case-history and the vector-pressure proxy — then re-runs the serialized
-Phase 1 model. Each prediction is fed back into next week's `cases_lag_*`, so the
+model. Each prediction is fed back into next week's `cases_lag_*`, so the
 outbreak momentum genuinely diverges. Zero crews reproduces the baseline exactly;
 that is an assertion in the test suite.
 

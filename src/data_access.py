@@ -53,9 +53,14 @@ def _load_raw_cached(path_str: str, mtime: float) -> pd.DataFrame:
     return df.sort_values([config.WARD_COL, config.DATE_COL]).reset_index(drop=True)
 
 
+def _raw_path() -> Path:
+    """Prefer the onsite file; fall back to the Phase 1 copy for old clones."""
+    return config.ONSITE_RAW if config.ONSITE_RAW.exists() else config.RAW_DATA
+
+
 def load_raw() -> pd.DataFrame:
     """Load and validate the bundled raw ward-week dataset."""
-    path = config.RAW_DATA
+    path = _raw_path()
     if not path.exists():
         raise FileNotFoundError(
             f"Raw dataset not found at {path}. Run `python scripts/fetch_data.py`."
@@ -81,8 +86,8 @@ def load_onsite() -> pd.DataFrame:
     """Load the Phase 2 onsite dataset (Phase 1 columns + supply targets).
 
     The case and weather columns are byte-identical to ``dengue_weather.csv``;
-    only the three deterministic supply targets were added. The bundled Phase 1
-    model therefore stays valid and does not need retraining.
+    only the three deterministic supply targets were added. The model is trained
+    from this file, but the supply targets are excluded from its feature set.
     """
     path = config.ONSITE_RAW
     if not path.exists():
@@ -134,7 +139,8 @@ def _ward_meta_cached(path_str: str, mtime: float) -> pd.DataFrame:
 
 def load_ward_meta() -> pd.DataFrame:
     """Return one row of static vulnerability data per ward."""
-    return _ward_meta_cached(str(config.RAW_DATA), _mtime(config.RAW_DATA))
+    path = _raw_path()
+    return _ward_meta_cached(str(path), _mtime(path))
 
 
 def available_dates(df: pd.DataFrame) -> list[pd.Timestamp]:

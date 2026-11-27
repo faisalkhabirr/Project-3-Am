@@ -121,8 +121,8 @@ def main(argv: Iterable[str] | None = None) -> int:
     parser.add_argument(
         "--raw",
         type=Path,
-        default=ROOT / "data" / "raw" / "dengue_weather.csv",
-        help="raw CSV, used only for the seasonal-naive baseline",
+        default=ROOT / "data" / "raw" / "dengue_onsite.csv",
+        help="raw CSV for the seasonal-naive baseline (onsite dataset)",
     )
     parser.add_argument(
         "--out",
