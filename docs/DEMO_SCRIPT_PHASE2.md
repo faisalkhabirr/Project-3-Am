@@ -15,7 +15,8 @@ matches the repo. The app footer prints the current short git hash; leave it vis
    ```
 2. Open http://localhost:8501 in Chrome/Edge, clean profile, bookmarks hidden, 100% zoom, F11.
 3. Confirm the footer shows the same hash as `git rev-parse --short=12 HEAD`.
-4. Warm the app once: Home → Dashboard → Command, change a slider, return to defaults.
+4. Warm the app once: Home → Dashboard → Command, change a slider, click **Reset demo defaults**
+   on the Command page, then return to the defaults below.
 5. Demo defaults:
    - Dashboard: **Dhaka North**, ward **DNCC Ward 12**, weather through **25 Aug 2025**, **+3 weeks**.
    - Command: **Dhaka North**, **25 Aug 2025**, **+2 weeks**, stock **60%**, crews **8**, capacity **1.20×**.

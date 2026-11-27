@@ -157,7 +157,9 @@ Streamlit page and is entirely local.
 
 **Allocation rule.** `allocate()` is pure and deterministic: protected floor → strict priority
 water-filling → integer units. The invariant tests prove monotonicity (more stock never reduces
-any ward's allocation) and conservation (allocated ≤ available for every commodity).
+any ward's allocation) and conservation (allocated ≤ available for every commodity). The UI
+reports **Supply %** and **Crew %** separately, so a ward with full supplies but no crew is still
+flagged as short.
 
 **Simulator honesty.** Efficacy curves are conservative planning assumptions (larvicide builds
 over 2–3 weeks; fogging acts quickly with a short residual). Because the model has no explicit

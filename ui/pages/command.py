@@ -233,6 +233,11 @@ def render_command() -> None:
             st.caption(
                 "Conservative mode: operational demand is sized against the upper 80% interval."
             )
+        if st.button("Reset demo defaults", key="cmd_reset"):
+            for key in list(st.session_state):
+                if key.startswith(("cmd_", "sim_", "dispatch_ward_")):
+                    del st.session_state[key]
+            st.rerun()
 
     as_of = pd.Timestamp(as_of).normalize()
     horizon = int(horizon)
