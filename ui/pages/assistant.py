@@ -282,41 +282,7 @@ def _render_floating_panel(messages: list[dict], context: AssistantContext) -> N
         unsafe_allow_html=True,
     )
 
-    # Panel HTML
-    panel_html = f"""
-    <div class="chat-float-panel" role="dialog" aria-modal="false">
-        <div class="chat-float-header">
-            <h3>Aedes Sentinel Assistant</h3>
-            <button class="chat-float-close"
-                    onclick="toggleFloatingPanel()"
-                    aria-label="Close chat">&times;</button>
-        </div>
-        <div class="chat-float-messages" id="floating-msgs">
-            {msgs_html}
-        </div>
-    </div>
-    """
-
-    st.markdown(panel_html, unsafe_allow_html=True)
-
-    # Input area
-    st.markdown(
-        f"""
-    <div class="chat-float-input-area">
-        <input type="text"
-               id="floating-chat-input"
-               class="chat-float-input"
-               placeholder="Ask about your ward, supplies, overflow, crews, or accuracy…"
-               onkeydown="if(event.key=='Enter') sendFloatingMessage()"/>
-        <button class="chat-float-send"
-                onclick="sendFloatingMessage(); toggleFloatingPanel();"
-                aria-label="Send message">
-            <span class="material-symbols-outlined">send</span>
-        </button>
-    </div>
-    """,
-        unsafe_allow_html=True,
-    )
+    
 
     # ---- Handle the custom send event from JS ----
     # Streamlit doesn't directly listen to arbitrary CustomEvents from Python,
