@@ -150,7 +150,7 @@ Streamlit page and is entirely local.
 
 | Tab | What it does |
 |---|---|
-| **Allocate** | Converts predicted cases to saline, kits and beds with the verified dataset formulas, then allocates under a **30–100% regional stock** slider. Every ward gets a protected 10% floor; the remainder is water-filled by risk tier × population density. Deficit badges and city roll-ups update live. |
+| **Allocate** | Converts predicted cases to saline, kits and beds with the verified dataset formulas, then allocates under a **30–100% regional stock** slider. Every ward gets a protected 10% floor; the remainder is water-filled by risk tier × population density. Deficit badges and city roll-ups update live. A **conservative planning** toggle sizes demand against the 80% upper interval. |
 | **Overflow** | Derives each ward's bed capacity from its historical 75th-percentile weekly demand (minimum 2 beds), then routes deficits to lower-burden wards **inside the same city**. Shows transfers, net deficits, city utilization and a regional escalation flag when a whole city is exhausted. A capacity multiplier lets judges stress-test the router. |
 | **Simulate** | Deploy larvicide or fogging crews to selected wards for 2–4 weeks. The simulator rewrites the relevant feature block, re-runs the serialized Phase 1 model, feeds predictions back into next week's case lags, and ranks wards by **cases prevented per crew**. Zero crews reproduces the baseline exactly. |
 | **Dispatch** | Builds a ≤160-character SMS, a WhatsApp message and a printable HTML commissioner brief from the same allocation. Exports to `/exports`; no LLM or network call is involved. |
@@ -352,7 +352,7 @@ Expected: `PASS — inference path is healthy.`
 | Data / lag integrity | `python scripts/verify_lags.py` | PASS |
 | Model + inference path | `python scripts/smoke_test.py` | PASS |
 | Phase 2 supply audit | `python scripts/verify_supply_formulas.py` | PASS, 31,320/31,320 rows per column |
-| Engine invariants | `python -m unittest discover` | PASS, 17 tests |
+| Engine invariants | `python -m unittest discover` | PASS, 18 tests |
 | Offline kill-switch | `python scripts/offline_check.py` | PASS with sockets blocked |
 | Headless UI flow | `python scripts/ui_smoke_test.py` | Home → Command → 30% stress → counterfactual, no exceptions |
 | Dispatch samples | `python scripts/export_dispatch_samples.py` | 24 files in `exports/` |

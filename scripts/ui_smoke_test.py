@@ -49,6 +49,18 @@ def main() -> int:
         print("FAIL: expected a critical deficit alert at 30% stock", file=sys.stderr)
         return 1
 
+    conservative = next(
+        (toggle for toggle in at.toggle if toggle.label == "Plan against the 80% upper interval"),
+        None,
+    )
+    if conservative is not None:
+        conservative.set_value(True)
+        at.run()
+        if at.exception:
+            for exc in at.exception:
+                print(f"FAIL conservative mode: {exc.value}", file=sys.stderr)
+            return 1
+
     run = next((button for button in at.button if button.label == "Run counterfactual"), None)
     if run is None:
         print("FAIL: simulator button not found", file=sys.stderr)

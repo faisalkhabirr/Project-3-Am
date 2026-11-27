@@ -179,6 +179,17 @@ def render_command() -> None:
         st.caption(
             "Local execution · 0 API calls · the same inputs always produce the same numbers."
         )
+        conservative = st.toggle(
+            "Plan against the 80% upper interval",
+            value=False,
+            key="cmd_conservative",
+            help="Size supplies, beds and routing against each ward's upper 80% forecast "
+            "interval instead of the point forecast. Useful for conservative stock planning.",
+        )
+        if conservative:
+            st.caption(
+                "Conservative mode: operational demand is sized against the upper 80% interval."
+            )
 
     as_of = pd.Timestamp(as_of).normalize()
     horizon = int(horizon)
@@ -195,11 +206,16 @@ def render_command() -> None:
         if pd.isna(row["cases"]) or ward not in meta_idx.index:
             continue
         info = meta_idx.loc[ward]
+        planning_cases = (
+            float(row["high"])
+            if conservative and pd.notna(row.get("high"))
+            else float(row["cases"])
+        )
         demands.append(
             WardDemand.from_prediction(
                 ward_id=ward,
                 city=str(info[config.CITY_COL]),
-                predicted_cases=float(row["cases"]),
+                predicted_cases=planning_cases,
                 tier=str(row["tier"]),
                 density=float(info["population_density_sqkm"]),
             )
@@ -246,7 +262,7 @@ def render_command() -> None:
             (
                 "Forecast week",
                 target_date.strftime("%d %b"),
-                f"+{horizon} weeks · {city}",
+                f"+{horizon} weeks · {city}" + (" · 80% upper" if conservative else ""),
             ),
             (
                 "City saline",

@@ -413,6 +413,8 @@ def predict_batch(
     )
     result["target_date"] = as_of + pd.to_timedelta(result["horizon"], unit="W")
     result["cases"] = np.nan
+    result["low"] = np.nan
+    result["high"] = np.nan
     result["tier"] = "—"
     result["risk_index"] = np.nan
 
@@ -425,6 +427,9 @@ def predict_batch(
             thresholds = thresholds_for(ward, bundle["thresholds"], features)
             result.at[idx, "tier"] = tier_for(cases, thresholds)
             result.at[idx, "risk_index"] = risk_index(cases, thresholds)
+            low, high = _interval(cases, int(result.at[idx, "horizon"]), bundle["metrics"])
+            result.at[idx, "low"] = low
+            result.at[idx, "high"] = high
     return result
 
 

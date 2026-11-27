@@ -127,6 +127,26 @@ class SimulationTest(unittest.TestCase):
         config.FEATURES.exists() and config.MODEL_PATH.exists(),
         "model artifacts not available",
     )
+    def test_batch_intervals_are_available_for_conservative_planning(self) -> None:
+        from src import data_access, inference
+
+        features = data_access.load_features()
+        bundle = inference.load_bundle()
+        batch = inference.predict_batch(
+            ["CCC_Ward_01", "DNCC_Ward_12"],
+            pd.Timestamp("2025-08-25"),
+            [1, 2, 3, 4],
+            features=features,
+            bundle=bundle,
+        )
+        self.assertTrue({"low", "high"}.issubset(batch.columns))
+        self.assertTrue((batch["low"] <= batch["cases"]).all())
+        self.assertTrue((batch["cases"] <= batch["high"]).all())
+
+    @unittest.skipUnless(
+        config.FEATURES.exists() and config.MODEL_PATH.exists(),
+        "model artifacts not available",
+    )
     def test_zero_crews_is_identity_and_effect_is_positive(self) -> None:
         from src import data_access, inference
 
