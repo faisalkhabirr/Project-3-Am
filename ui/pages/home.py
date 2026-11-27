@@ -16,7 +16,8 @@ def render() -> None:
     <p class="home-sub">
       A ward-level early-warning dashboard that turns 1–4 weeks of weather lag
       into a 2–4 week window for vector control, hospital readiness and
-      targeted larvicide — before the case curve climbs.
+      targeted larvicide — then turns the forecast into saline, beds, crews and
+      field dispatch in the Phase 2 command center.
     </p>
   </div>
   <div class="home-hero-right">
@@ -41,7 +42,7 @@ def render() -> None:
     )
 
     with st.container(key="home_cta"):
-        c1, c2, _ = st.columns([1.15, 1.15, 2.7], gap="small")
+        c1, c2, c3, _ = st.columns([1.15, 1.15, 1.35, 2.0], gap="small")
         if c1.button(
             "Open dashboard",
             key="open_dashboard",
@@ -50,6 +51,13 @@ def render() -> None:
         ):
             go_to("dashboard")
         if c2.button(
+            "Phase 2 command center",
+            key="open_command",
+            type="primary",
+            width="stretch",
+        ):
+            go_to("command")
+        if c3.button(
             "Why we built this",
             key="why_built",
             type="secondary",
