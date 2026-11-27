@@ -50,7 +50,7 @@
 | **Approach** | Weekly ward weather + 1–4 week lags + vulnerability → Poisson gradient boosting → risk tier + 80% interval. |
 | **Coverage** | 60 wards, 5 cities, 2016–2025, weekly resolution. |
 | **Model** | `HistGradientBoostingRegressor(loss="poisson")`, 32 features, serialized with joblib. |
-| **Holdout** | MAE **1.05**, RMSE **2.10** cases per ward-week (2024–2025); seasonal-naive 1.69, persistence 1.75. |
+| **Holdout** | MAE **1.05**, RMSE **2.10** cases per ward-week across all horizons (0.98 at +1 week); seasonal-naive 1.69; persistence 1.41 at +1 week / 1.75 across horizons. |
 | **Phase 2** | Constrained allocation, intra-city overflow routing, model-driven crew counterfactuals, offline SMS/WhatsApp/print dispatch. |
 | **Interface** | Streamlit, five pages, local CPU, **0 runtime APIs**. |
 | **Team** | Team 3AM. |
@@ -352,7 +352,7 @@ Expected: `PASS — inference path is healthy.`
 | Data / lag integrity | `python scripts/verify_lags.py` | PASS |
 | Model + inference path | `python scripts/smoke_test.py` | PASS |
 | Phase 2 supply audit | `python scripts/verify_supply_formulas.py` | PASS, 31,320/31,320 rows per column |
-| Engine invariants | `python -m unittest discover` | PASS, 18 tests |
+| Engine invariants | `python -m unittest discover` | PASS, 19 tests |
 | Offline kill-switch | `python scripts/offline_check.py` | PASS with sockets blocked |
 | Headless UI flow | `python scripts/ui_smoke_test.py` | Home → Command → 30% stress → counterfactual, no exceptions |
 | Dispatch samples | `python scripts/export_dispatch_samples.py` | 24 files in `exports/` |

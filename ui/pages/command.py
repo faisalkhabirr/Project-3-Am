@@ -64,11 +64,13 @@ def _allocation_table(frame: pd.DataFrame) -> pd.DataFrame:
             "required_crews",
             "allocated_crews",
             "deficit",
-            "fulfillment_pct",
+            "fulfillment_supply_pct",
+            "fulfillment_crew_pct",
         ]
     ].copy()
     display["ward_id"] = display["ward_id"].astype(str).str.replace("_", " ")
-    display["fulfillment_pct"] = display["fulfillment_pct"] * 100
+    for col in ("fulfillment_supply_pct", "fulfillment_crew_pct"):
+        display[col] = display[col] * 100
     display = display.rename(
         columns={
             "ward_id": "Ward",
@@ -86,10 +88,51 @@ def _allocation_table(frame: pd.DataFrame) -> pd.DataFrame:
             "required_crews": "Crews need",
             "allocated_crews": "Crews got",
             "deficit": "Deficit",
-            "fulfillment_pct": "Fulfilment",
+            "fulfillment_supply_pct": "Supply %",
+            "fulfillment_crew_pct": "Crew %",
         }
     )
     return display
+
+
+def _city_rollup_table(rollup: pd.DataFrame) -> pd.DataFrame:
+    display = rollup.copy()
+    display["saline"] = display.apply(
+        lambda row: f"{int(row['allocated_saline'])} / {int(row['required_saline'])}", axis=1
+    )
+    display["beds"] = display.apply(
+        lambda row: f"{int(row['allocated_beds'])} / {int(row['required_beds'])}", axis=1
+    )
+    display["crews"] = display.apply(
+        lambda row: f"{int(row['allocated_crews'])} / {int(row['required_crews'])}", axis=1
+    )
+    display["supply_%"] = display["supply_fulfillment_pct"] * 100
+    display["crew_%"] = display["crew_fulfillment_pct"] * 100
+    return display[
+        [
+            "city",
+            "wards",
+            "predicted_cases",
+            "saline",
+            "beds",
+            "crews",
+            "supply_%",
+            "crew_%",
+            "deficit_wards",
+        ]
+    ].rename(
+        columns={
+            "city": "City",
+            "wards": "Wards",
+            "predicted_cases": "Cases",
+            "saline": "Saline got / need",
+            "beds": "Beds got / need",
+            "crews": "Crews got / need",
+            "supply_%": "Supply %",
+            "crew_%": "Crew %",
+            "deficit_wards": "Short wards",
+        }
+    )
 
 
 def render_command() -> None:
@@ -250,12 +293,25 @@ def render_command() -> None:
 
     city_required_saline = int(city_frame["required_saline"].sum())
     city_allocated_saline = int(city_frame["allocated_saline"].sum())
-    city_deficit_wards = int(city_frame["deficit"].sum())
+    city_supply_gap_wards = int(
+        (city_frame[["deficit_saline", "deficit_kits", "deficit_beds"]].sum(axis=1) > 0).sum()
+    )
+    city_crew_gap_wards = int((city_frame["deficit_crews"] > 0).sum())
     city_capacity = sum(bed_capacity.get(ward, 0) for ward in city_frame["ward_id"])
     city_bed_demand = sum(bed_demand.get(ward, 0) for ward in city_frame["ward_id"])
     city_unrouted = sum(
         routing.net_deficits.get(ward, 0) for ward in city_frame["ward_id"]
     )
+    regional_required_saline = int(allocation.required["saline_bags_needed"])
+    regional_available_saline = int(allocation.available["saline_bags_needed"])
+    regional_supply_gap_wards = int(
+        (
+            allocation.per_ward[["deficit_saline", "deficit_kits", "deficit_beds"]].sum(axis=1)
+            > 0
+        ).sum()
+    )
+    regional_crew_gap_wards = int((allocation.per_ward["deficit_crews"] > 0).sum())
+    regional_wards = len(allocation.per_ward)
 
     _kpi_row(
         [
@@ -265,19 +321,21 @@ def render_command() -> None:
                 f"+{horizon} weeks · {city}" + (" · 80% upper" if conservative else ""),
             ),
             (
-                "City saline",
-                f"{city_allocated_saline:,} / {city_required_saline:,}",
-                f"{_fulfilment(city_allocated_saline, city_required_saline):.0f}% fulfilled",
+                "Regional saline",
+                f"{regional_available_saline:,} / {regional_required_saline:,}",
+                f"{city}: {city_allocated_saline:,}/{city_required_saline:,} "
+                f"({_fulfilment(city_allocated_saline, city_required_saline):.0f}%)",
             ),
             (
-                "Deficit wards",
-                f"{city_deficit_wards} / {len(city_frame)}",
-                "live scarcity alert",
+                "Regional supply gaps",
+                f"{regional_supply_gap_wards} / {regional_wards} wards",
+                f"{city}: {city_supply_gap_wards} / {len(city_frame)} · "
+                f"crews short in {regional_crew_gap_wards}/{regional_wards}",
             ),
             (
-                "Bed pressure",
+                "City bed pressure",
                 f"{city_bed_demand} / {city_capacity}",
-                f"{city_unrouted} unrouted after transfer",
+                f"{city_unrouted} unrouted · {len(city_transfers)} transfers in",
             ),
         ]
     )
@@ -296,67 +354,52 @@ def render_command() -> None:
                 config={"displayModeBar": False},
             )
         with right:
-            st.markdown("#### City roll-up")
-            roll = city_frame.copy()
-            roll["saline_%"] = roll.apply(
-                lambda row: _fulfilment(row["allocated_saline"], row["required_saline"]), axis=1
-            )
-            roll["beds_%"] = roll.apply(
-                lambda row: _fulfilment(row["allocated_beds"], row["required_beds"]), axis=1
-            )
+            st.markdown("#### City roll-up · all 60 wards")
             st.dataframe(
-                roll[
-                    [
-                        "ward_id",
-                        "tier",
-                        "predicted_cases",
-                        "saline_%",
-                        "beds_%",
-                        "allocated_crews",
-                    ]
-                ].rename(
-                    columns={
-                        "ward_id": "Ward",
-                        "tier": "Tier",
-                        "predicted_cases": "Cases",
-                        "saline_%": "Saline %",
-                        "beds_%": "Beds %",
-                        "allocated_crews": "Crews",
-                    }
-                ),
+                _city_rollup_table(allocation.city_rollup),
                 hide_index=True,
                 width="stretch",
-                height=360,
+                height=300,
                 column_config={
-                    "Saline %": st.column_config.ProgressColumn(
-                        "Saline %", min_value=0, max_value=100, format="%.0f%%"
+                    "Cases": st.column_config.NumberColumn("Cases", format="%.1f"),
+                    "Supply %": st.column_config.ProgressColumn(
+                        "Supply %", min_value=0, max_value=100, format="%.0f%%"
                     ),
-                    "Beds %": st.column_config.ProgressColumn(
-                        "Beds %", min_value=0, max_value=100, format="%.0f%%"
+                    "Crew %": st.column_config.ProgressColumn(
+                        "Crew %", min_value=0, max_value=100, format="%.0f%%"
                     ),
                 },
             )
+            st.caption(
+                "Supply % is the bottleneck across saline, kits and beds. "
+                "Crew % is assigned vs required spraying teams. A ward is short if either "
+                "is below 100%."
+            )
 
-        city_any_gap = city_frame[
-            ["deficit_saline", "deficit_kits", "deficit_beds", "deficit_crews"]
+        city_supply_gap = city_frame[
+            ["deficit_saline", "deficit_kits", "deficit_beds"]
         ].sum(axis=1)
-        if (city_any_gap > 0).any():
-            worst = city_frame.assign(_gap=city_any_gap).sort_values(
-                "_gap", ascending=False
-            ).head(3)
-            names = ", ".join(
-                f"{ward.replace('_', ' ')} ({int(gap)} units)"
-                for ward, gap in zip(worst["ward_id"], worst["_gap"], strict=True)
-            )
+        if city_supply_gap_wards > 0:
+            if (city_supply_gap > 0).any():
+                worst = city_frame.assign(_gap=city_supply_gap).sort_values(
+                    "_gap", ascending=False
+                ).head(3)
+                names = ", ".join(
+                    f"{ward.replace('_', ' ')} ({int(gap)} units)"
+                    for ward, gap in zip(worst["ward_id"], worst["_gap"], strict=True)
+                )
+                supply_text = f"Largest supply gaps: {names}."
+            else:
+                supply_text = ""
             st.error(
-                f"Critical supply deficit in {city}: {int((city_any_gap > 0).sum())} of "
+                f"Critical supply deficit in {city}: {city_supply_gap_wards} of "
                 f"{len(city_frame)} wards cannot be 100% fulfilled at this stock level. "
-                f"Worst: {names}."
+                f"{supply_text} {city_crew_gap_wards} wards are short on crews."
             )
-        elif allocation.total_deficit["saline_bags_needed"] > 0:
+        elif city_crew_gap_wards > 0:
             st.warning(
-                f"{city} is fully covered, but {allocation.total_deficit['saline_bags_needed']:,} "
-                "saline bags remain unfunded elsewhere in the 60-ward region."
+                f"Supplies are covered in {city}, but {city_crew_gap_wards} of "
+                f"{len(city_frame)} wards are short on spraying crews."
             )
         else:
             st.success("All ward demand is covered at this stock level.")
@@ -368,8 +411,11 @@ def render_command() -> None:
             width="stretch",
             height=430,
             column_config={
-                "Fulfilment": st.column_config.ProgressColumn(
-                    "Fulfilment", min_value=0, max_value=100, format="%.0f%%"
+                "Supply %": st.column_config.ProgressColumn(
+                    "Supply %", min_value=0, max_value=100, format="%.0f%%"
+                ),
+                "Crew %": st.column_config.ProgressColumn(
+                    "Crew %", min_value=0, max_value=100, format="%.0f%%"
                 ),
                 "Deficit": st.column_config.CheckboxColumn("Deficit"),
                 "Cases": st.column_config.NumberColumn("Cases", format="%.1f"),
@@ -487,7 +533,10 @@ def render_command() -> None:
         ]
         s1, s2, s3, s4 = st.columns([1.7, 1.0, 1.0, 1.0], gap="medium")
         selected_wards = s1.multiselect(
-            "Wards to treat", wards_city, default=default_wards, key="sim_wards"
+            "Wards to treat",
+            wards_city,
+            default=default_wards,
+            key=f"sim_wards_{city}",
         )
         crew_type = s2.radio(
             "Crew type",
@@ -499,7 +548,15 @@ def render_command() -> None:
         start_week = s4.slider("Start week", 1, 4, 1, key="sim_start")
         weeks = st.slider("Simulation horizon", 2, 4, 4, key="sim_weeks")
         run = st.button("Run counterfactual", type="primary", key="sim_run")
-        signature = (tuple(selected_wards), crew_type, crews_per_ward, start_week, weeks, str(as_of))
+        signature = (
+            tuple(selected_wards),
+            crew_type,
+            crews_per_ward,
+            start_week,
+            weeks,
+            str(as_of),
+            city,
+        )
         if run:
             if not selected_wards:
                 st.warning("Pick at least one ward to treat.")
@@ -580,7 +637,7 @@ def render_command() -> None:
             wards_city,
             index=0,
             format_func=lambda w: str(w).replace("_", " "),
-            key="dispatch_ward",
+            key=f"dispatch_ward_{city}",
         )
         row = allocation.per_ward.loc[
             allocation.per_ward["ward_id"] == dispatch_ward

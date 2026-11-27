@@ -102,7 +102,8 @@ enough that a compact model is preferable to a deep network.
 `HistGradientBoostingRegressor`), trained on the chronological split above. The exact estimator
 and metrics are recorded in `models/metrics.json` and rendered in the app. On the untouched
 2024–2025 holdout the model reaches **MAE 1.05** and **RMSE 2.10** cases per ward-week, versus
-**1.69** for the seasonal-naive baseline and **1.75** for persistence.
+**1.69** for the seasonal-naive baseline and **1.75** for persistence across all horizons
+(1.41 at the +1 week horizon).
 
 Why this choice:
 

@@ -402,10 +402,12 @@ def allocation_figure(frame: pd.DataFrame, top_n: int = 12) -> go.Figure:
             name="Allocated",
             marker_color=colours,
             marker_line_width=0,
-            customdata=np.stack([data["tier"], data["fulfillment_pct"] * 100], axis=-1),
+            customdata=np.stack(
+                [data["tier"], data["fulfillment_supply_pct"] * 100], axis=-1
+            ),
             hovertemplate=(
                 "<b>%{y}</b><br>Allocated: %{x} bags<br>"
-                "Tier: %{customdata[0]}<br>Fulfilment: %{customdata[1]:.0f}%<extra></extra>"
+                "Tier: %{customdata[0]}<br>Saline fulfilment: %{customdata[1]:.0f}%<extra></extra>"
             ),
         )
     )

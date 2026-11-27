@@ -229,10 +229,23 @@ def allocate(
     allocated_total = (
         frame["allocated_saline"] + frame["allocated_kits"] + frame["allocated_beds"]
     )
-    frame["fulfillment_pct"] = np.where(
+    frame["fulfillment_supply_pct"] = np.where(
         required_total > 0, allocated_total / required_total.replace(0, np.nan), 1.0
     )
-    frame["fulfillment_pct"] = frame["fulfillment_pct"].fillna(1.0).clip(0, 1)
+    frame["fulfillment_crew_pct"] = np.where(
+        crews_req > 0, alloc_crews / np.maximum(crews_req, 1), 1.0
+    )
+    frame["fulfillment_supply_pct"] = (
+        frame["fulfillment_supply_pct"].fillna(1.0).clip(0, 1)
+    )
+    frame["fulfillment_crew_pct"] = (
+        frame["fulfillment_crew_pct"].fillna(1.0).clip(0, 1)
+    )
+    # Overall coverage is the bottleneck: a ward with full supplies but no
+    # crew is not operationally 100% covered.
+    frame["fulfillment_pct"] = np.minimum(
+        frame["fulfillment_supply_pct"], frame["fulfillment_crew_pct"]
+    )
 
     city_rollup = (
         frame.groupby("city", as_index=False)
@@ -252,6 +265,18 @@ def allocate(
         .sort_values("predicted_cases", ascending=False)
         .reset_index(drop=True)
     )
+    for kind in ("saline", "kits", "beds", "crews"):
+        required = city_rollup[f"required_{kind}"].replace(0, np.nan)
+        city_rollup[f"{kind}_fulfillment"] = (
+            (city_rollup[f"allocated_{kind}"] / required).fillna(1.0).clip(0, 1)
+        )
+    city_rollup["fulfillment_pct"] = city_rollup[
+        ["saline_fulfillment", "kits_fulfillment", "beds_fulfillment", "crews_fulfillment"]
+    ].min(axis=1)
+    city_rollup["supply_fulfillment_pct"] = city_rollup[
+        ["saline_fulfillment", "kits_fulfillment", "beds_fulfillment"]
+    ].min(axis=1)
+    city_rollup["crew_fulfillment_pct"] = city_rollup["crews_fulfillment"]
 
     total_deficit = {
         "saline_bags_needed": int(frame["deficit_saline"].sum()),

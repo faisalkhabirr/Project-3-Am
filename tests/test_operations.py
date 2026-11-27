@@ -75,6 +75,16 @@ class AllocationTest(unittest.TestCase):
         )
         self.assertTrue(result.loc["A1", "fulfillment_pct"] >= result.loc["B2", "fulfillment_pct"])
 
+    def test_crew_bottleneck_is_reflected_in_overall_fulfillment(self) -> None:
+        demands = [_demand("A1", "City A", 10, "Critical", 70000, 4)]
+        result = allocate(demands, 1.0, total_crews=0)
+        row = result.per_ward.iloc[0]
+        self.assertEqual(float(row["fulfillment_supply_pct"]), 1.0)
+        self.assertEqual(float(row["fulfillment_crew_pct"]), 0.0)
+        self.assertEqual(float(row["fulfillment_pct"]), 0.0)
+        self.assertTrue(bool(row["deficit"]))
+        self.assertEqual(float(result.city_rollup.iloc[0]["fulfillment_pct"]), 0.0)
+
     def test_zero_stock_and_validation(self) -> None:
         result = allocate(self.demands, 0.0, total_crews=0)
         self.assertEqual(int(result.per_ward["allocated_saline"].sum()), 0)

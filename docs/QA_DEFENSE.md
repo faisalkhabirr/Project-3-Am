@@ -13,7 +13,7 @@ questions will probe the assumptions behind allocation, routing and simulation.
 | Kits | `round_half_down(7/6 × cases)` ≈ 1.167 kits/case |
 | Beds | `round_half_down(0.3 × cases)` = 30% admission |
 | Model holdout | MAE **1.05**, RMSE **2.10**; seasonal-naive 1.69; persistence 1.75 |
-| Allocation demo | 60% stock, 8 crews → 58/60 wards in deficit, 749/1,249 saline bags available |
+| Allocation demo | 60% stock, 8 crews → 749/1,249 saline; supply gaps in 31/60 wards; crew gaps in 58/60 |
 | Routing demo | 1.20× capacity → 7 intra-city transfers, 0 unrouted beds |
 | Simulator demo | 2 larvicide crews × 3 Dhaka North wards × 4 weeks → ~12.1 cases prevented |
 | Offline proof | sockets blocked, full pipeline completes, 15 dispatch files written |
@@ -43,8 +43,9 @@ highest-priority wards first. Integer units only.
 ### 4. "Prove it behaves correctly."
 Two invariant tests: **monotonicity** (raising stock never reduces any ward's
 allocation) and **conservation** (allocated ≤ available for saline, kits and
-beds). A cap test proves no ward receives more than its requirement. The full
-suite is `python -m unittest discover`.
+beds). A cap test proves no ward receives more than its requirement. The UI
+reports **Supply %** and **Crew %** separately — a ward with full supplies but
+no crew is still flagged as short. The full suite is `python -m unittest discover`.
 
 ### 5. "Isn't the 10% floor unfair to high-risk wards?"
 It is a deliberate policy trade-off: a floor prevents a low-risk ward from being
@@ -53,10 +54,11 @@ strictly priority-ordered, so high-risk, dense wards are covered first. The floo
 is a parameter (`min_floor`), not a hardcode, and can be set to zero.
 
 ### 6. "At 30% stock, what happens?"
-At the demo week, 30% stock leaves 749 of 1,249 saline bags for 60 wards; 58
-wards show a deficit. The highest tier/density wards keep the largest share, and
-the UI raises a live critical-deficit banner naming the worst wards. Nothing is
-silently rounded up.
+At the demo week, 30% stock leaves **374 of 1,249 saline bags** for 60 wards; supply
+gaps rise from 31 to **49 of 60 wards**, while 58 wards are short on crews even at
+60%. The highest tier/density wards keep the largest share, and the UI raises a live
+critical-deficit banner naming the worst wards. At 100% stock, supply gaps fall to
+zero but crew scarcity remains visible. Nothing is silently rounded up.
 
 ### 7. "Where does bed capacity come from? It's not in the dataset."
 Correct — it is not. We use a transparent planning baseline: each ward's

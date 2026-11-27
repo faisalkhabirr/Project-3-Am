@@ -42,8 +42,9 @@ matches the repo. The app footer prints the current short git hash; leave it vis
 > "I switch to the Command Center. Sixty wards, Dhaka North selected, 60% of regional stock, eight
 > crews. The engine converts predicted cases to saline, kits and beds using the exact dataset
 > conversions — 2.385 bags per case, 1.167 kits, 30% admission. It protects a ten-percent floor
-> for every ward, then water-fills by risk tier times population density. At 60% stock, 58 wards
-> have a deficit; the red badges are live. Watch what happens at 30%."
+> for every ward, then water-fills by risk tier times population density. At 60% stock, 31 of
+> 60 wards have a supply gap and 58 are short on crews; 749 of 1,249 saline bags are available.
+> The red badges are live. Watch what happens at 30%."
 >
 > **Drag stock to 30%.** Pause for the recompute.
 >
