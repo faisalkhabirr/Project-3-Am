@@ -1,0 +1,94 @@
+{
+  "generated_locally": true,
+  "as_of": "2025-08-25",
+  "horizon_weeks": 2,
+  "target_date": "08 Sep 2025",
+  "stock_fraction": 0.6,
+  "total_crews": 8,
+  "capacity_multiplier": 1.2,
+  "wards": 60,
+  "required": {
+    "saline_bags_needed": 1249,
+    "diagnostic_kits_needed": 611,
+    "hospital_beds_required": 158,
+    "crews": 189
+  },
+  "available": {
+    "saline_bags_needed": 749,
+    "diagnostic_kits_needed": 366,
+    "hospital_beds_required": 94,
+    "crews": 8
+  },
+  "total_deficit": {
+    "saline_bags_needed": 500,
+    "diagnostic_kits_needed": 245,
+    "hospital_beds_required": 64,
+    "crews": 181
+  },
+  "bed_capacity_total": 180,
+  "bed_demand_total": 158,
+  "transfers": [
+    {
+      "from": "CCC_Ward_02",
+      "to": "CCC_Ward_01",
+      "patients": 1
+    },
+    {
+      "from": "CCC_Ward_05",
+      "to": "CCC_Ward_03",
+      "patients": 1
+    },
+    {
+      "from": "DNCC_Ward_04",
+      "to": "DNCC_Ward_12",
+      "patients": 1
+    },
+    {
+      "from": "DNCC_Ward_06",
+      "to": "DNCC_Ward_19",
+      "patients": 1
+    },
+    {
+      "from": "DSCC_Ward_14",
+      "to": "DSCC_Ward_04",
+      "patients": 1
+    },
+    {
+      "from": "DSCC_Ward_14",
+      "to": "DSCC_Ward_06",
+      "patients": 1
+    },
+    {
+      "from": "DSCC_Ward_01",
+      "to": "DSCC_Ward_19",
+      "patients": 1
+    }
+  ],
+  "escalated_cities": [],
+  "exports": [
+    "exports/DNCC_Ward_04_08-Sep-2025_sms.txt",
+    "exports/DNCC_Ward_04_08-Sep-2025_whatsapp.txt",
+    "exports/DNCC_Ward_04_08-Sep-2025_brief.html",
+    "exports/DSCC_Ward_08_08-Sep-2025_sms.txt",
+    "exports/DSCC_Ward_08_08-Sep-2025_whatsapp.txt",
+    "exports/DSCC_Ward_08_08-Sep-2025_brief.html",
+    "exports/DSCC_Ward_04_08-Sep-2025_sms.txt",
+    "exports/DSCC_Ward_04_08-Sep-2025_whatsapp.txt",
+    "exports/DSCC_Ward_04_08-Sep-2025_brief.html",
+    "exports/DNCC_Ward_10_08-Sep-2025_sms.txt",
+    "exports/DNCC_Ward_10_08-Sep-2025_whatsapp.txt",
+    "exports/DNCC_Ward_10_08-Sep-2025_brief.html",
+    "exports/DNCC_Ward_12_08-Sep-2025_sms.txt",
+    "exports/DNCC_Ward_12_08-Sep-2025_whatsapp.txt",
+    "exports/DNCC_Ward_12_08-Sep-2025_brief.html",
+    "exports/DNCC_Ward_09_08-Sep-2025_sms.txt",
+    "exports/DNCC_Ward_09_08-Sep-2025_whatsapp.txt",
+    "exports/DNCC_Ward_09_08-Sep-2025_brief.html",
+    "exports/GCC_Ward_01_08-Sep-2025_sms.txt",
+    "exports/GCC_Ward_01_08-Sep-2025_whatsapp.txt",
+    "exports/GCC_Ward_01_08-Sep-2025_brief.html",
+    "exports/NCC_Ward_01_08-Sep-2025_sms.txt",
+    "exports/NCC_Ward_01_08-Sep-2025_whatsapp.txt",
+    "exports/NCC_Ward_01_08-Sep-2025_brief.html"
+  ]
+}

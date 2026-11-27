@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Dengue dispatch — DNCC_Ward_12</title>
+<style>
+  @page { size: A4; margin: 16mm; }
+  body { font-family: Georgia, 'Times New Roman', serif; color: #17221c; line-height: 1.45; }
+  .kicker { font-family: Arial, sans-serif; letter-spacing: .14em; text-transform: uppercase;
+             font-size: 11px; color: #5b6b60; }
+  h1 { font-size: 26px; margin: 4px 0 2px; }
+  .tier { display: inline-block; padding: 4px 10px; border-radius: 999px; color: white;
+           background: #D96A1A; font-family: Arial, sans-serif; font-size: 12px; }
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 18px 0; }
+  .card { border: 1px solid #d8e0da; border-radius: 8px; padding: 10px 12px; }
+  .label { font-family: Arial, sans-serif; font-size: 10px; letter-spacing: .08em;
+            text-transform: uppercase; color: #5b6b60; }
+  .value { font-size: 20px; font-weight: 700; }
+  table { width: 100%; border-collapse: collapse; margin: 10px 0 18px; }
+  th, td { border-bottom: 1px solid #e2e8e3; padding: 7px 6px; font-family: Arial, sans-serif;
+            font-size: 13px; }
+  th { text-align: left; color: #5b6b60; font-size: 11px; text-transform: uppercase; }
+  .footer { margin-top: 24px; padding-top: 10px; border-top: 1px solid #d8e0da;
+             font-family: Arial, sans-serif; font-size: 11px; color: #5b6b60; }
+  @media print { .no-print { display: none; } }
+</style>
+</head>
+<body>
+  <div class="kicker">Aedes Sentinel · Team 3AM · field dispatch</div>
+  <h1>Dhaka North · DNCC Ward 12</h1>
+  <p>Forecast week of <strong>08 Sep 2025</strong> &nbsp; <span class="tier">High</span></p>
+
+  <div class="grid">
+    <div class="card"><div class="label">Predicted cases</div>
+      <div class="value">12</div></div>
+    <div class="card"><div class="label">Crews assigned</div>
+      <div class="value">0 / 3</div></div>
+    <div class="card"><div class="label">Unrouted bed deficit</div>
+      <div class="value">0</div></div>
+  </div>
+
+  <h2 style="font-size:17px;margin-bottom:4px">Supply position</h2>
+  <table>
+    <thead><tr><th>Commodity</th><th style="text-align:right">Allocated</th>
+      <th style="text-align:right">Required</th><th>Status</th></tr></thead>
+    <tbody><tr><td>Saline</td><td style='text-align:right'>29</td><td style='text-align:right'>29</td><td style='color:#2f7d4a;font-weight:600'>Covered</td></tr><tr><td>Kits</td><td style='text-align:right'>14</td><td style='text-align:right'>14</td><td style='color:#2f7d4a;font-weight:600'>Covered</td></tr><tr><td>Beds</td><td style='text-align:right'>4</td><td style='text-align:right'>4</td><td style='color:#2f7d4a;font-weight:600'>Covered</td></tr></tbody>
+  </table>
+
+  <h2 style="font-size:17px;margin-bottom:4px">Hospital overflow</h2>
+  <ul><li>1 patient(s) → DNCC Ward 04</li></ul>
+  <p><strong>Commissioner note:</strong> Scarcity scenario: 60% regional stock, 8 crews, 1.20x bed capacity. Verify against the ward register before dispatch.</p>
+
+  <p class="footer">Generated locally by Aedes Sentinel · no external API · decision support only.
+  Verify against the ward register before dispatch.</p>
+  <button class="no-print" onclick="window.print()">Print this brief</button>
+</body>
+</html>

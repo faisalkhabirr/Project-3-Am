@@ -1,0 +1,12 @@
+🦟 *Dengue dispatch — Gazipur · GCC Ward 01*
+Week of 08 Sep 2025 · *High* · 10.1 expected cases
+
+Saline: 24 / 24 ✅
+Kits: 12 / 12 ✅
+Beds: 3 / 3 ✅
+Crews: 0 / 3 assigned
+Overflow: none · city headroom available
+
+Scarcity scenario: 60% regional stock, 8 crews, 1.20x bed capacity. Verify against the ward register before dispatch.
+
+Reply ACK to confirm receipt. Offline-generated · Aedes Sentinel.
