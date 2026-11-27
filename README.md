@@ -61,10 +61,10 @@
 
 ## Demo video
 
-**Phase 2 onsite walkthrough (7:00, uncut):** _link added before submission._
+**Phase 2 onsite walkthrough (7:00, uncut):** [Unlisted YouTube link will be added before submission](https://www.youtube.com/watch?v=)
 Script: [`docs/DEMO_SCRIPT_PHASE2.md`](docs/DEMO_SCRIPT_PHASE2.md)
 
-**Phase 1 remote qualifier (3:00):** _link added before submission._
+**Phase 1 remote qualifier (3:00):** [Unlisted YouTube link will be added before submission](https://www.youtube.com/watch?v=)
 Script: [`docs/DEMO_SCRIPT.md`](docs/DEMO_SCRIPT.md)
 
 **Q&A preparation:** [`docs/QA_DEFENSE.md`](docs/QA_DEFENSE.md) — 19 rehearsed questions
@@ -73,8 +73,6 @@ with the exact numbers and the honest assumptions behind them.
 **Judge reference PDF:** [`docs/Aedes_Sentinel_Model_System_Design.pdf`](docs/Aedes_Sentinel_Model_System_Design.pdf) —
 model, split, five Phase 2 capabilities, complete system design and Q&A short answers.
 Source: [`docs/MODEL_AND_SYSTEM_QA.md`](docs/MODEL_AND_SYSTEM_QA.md).
-
-<!-- Replace the lines above with unlisted YouTube/Drive links before submission. -->
 
 ---
 
