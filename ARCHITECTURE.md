@@ -165,15 +165,101 @@ monotonicity and the full onsite reproduction (`python -m unittest discover`).
 
 ---
 
+## 6A. Operational layer (Phase 2)
+
+```mermaid
+flowchart LR
+    A[Phase 1 model<br/>4-week forecast] --> B[Supply conversion<br/>saline · kits · beds]
+    B --> C[Constrained allocation<br/>30–100% stock + crews]
+    C --> D[Intra-city overflow<br/>routing + escalation]
+    C --> E[Counterfactual simulator<br/>larvicide / fogging]
+    D --> F[Field dispatch<br/>SMS · WhatsApp · print]
+    E --> F
+    F --> G[(/exports<br/>offline packet)]
+```
+
+### 6A.1 Constrained allocation
+
+`src/operations/allocation.py` is pure and deterministic. Priority is
+`0.65 × tier_rank + 0.35 × density_norm`, so a Critical ward in a crowded ward
+outranks a Medium ward elsewhere. The algorithm:
+
+1. reserve a **protected floor** (default 10%) for every ward;
+2. water-fill the remaining stock in strict priority order;
+3. allocate integer units only.
+
+Supplies are the verified demand numbers; crews are derived from tier and
+density (Low 0, Medium 1, High 2, Critical 3, plus one for a dense High/Critical
+ward). The UI exposes stock and total crews as live sliders and recomputes the
+whole 60-ward ledger in one vectorized pass. Invariant tests prove:
+
+- **monotonicity** — raising available stock never reduces any ward's allocation;
+- **conservation** — allocated ≤ available for every commodity;
+- **caps** — no ward receives more than its requirement.
+
+### 6A.2 Intra-city overflow routing
+
+Bed capacity is not in the dataset. The prototype uses a transparent planning
+baseline: each ward's **75th-percentile historical weekly bed demand** from the
+onsite file, minimum 2 beds. The UI exposes a 0.6–2.0× multiplier so the router
+can be stress-tested live.
+
+`route_overflow()` computes each ward's unmet demand, sorts donors by lowest
+utilization, and routes patients to available headroom **inside the same city
+pool** (Dhaka North, Dhaka South, Chattogram, Gazipur, Narayanganj). It returns
+the transfer list, net deficits, city utilization and an escalation flag when a
+city cannot absorb its own demand. Tests verify no cross-city transfer, no donor
+above headroom, and that transfers exactly resolve the routed deficit.
+
+### 6A.3 Model-driven counterfactual simulator
+
+The simulator does not apply a hardcoded percentage. For each simulated week it:
+
+1. reads the real feature row for that ward/week;
+2. rewrites the case-history features with the arm's simulated history;
+3. applies the intervention at feature level —
+   larvicide scales breeding-habitat features (`rain_lag_*`, `rain_cum_*`,
+   effective waterlogging risk), fogging scales case-history and the
+   vector-pressure proxy;
+4. re-runs the **serialized Phase 1 model**;
+5. feeds the prediction back into next week's case lags.
+
+Downstream beds and saline use the same verified conversion. Efficacy curves are
+conservative planning assumptions (larvicide builds over 2–3 weeks and lasts
+longer; fogging acts quickly with a short residual); crews have diminishing
+returns (zero crews = no effect, one crew = 75%, two = full nominal effect).
+`simulate()` returns per-week baseline/intervention cases, beds and saline plus
+an ROI table (`cases prevented per crew`). The zero-crew test asserts the
+intervention arm is identical to baseline to 1e-6.
+
+### 6A.4 Dispatch and offline resilience
+
+`src/operations/dispatch.py` builds all three channels from one validated set of
+numbers using `str`/HTML templates only. The SMS is capped at 160 characters;
+the printable brief is a self-contained HTML file with inline print CSS; the
+WhatsApp message lists allocated vs required, deficits and overflow routes.
+`write_exports()` writes the packet to `/exports`.
+
+`scripts/offline_check.py` blocks `socket.socket`, `socket.create_connection`
+and `socket.getaddrinfo`, then runs forecast → allocation → routing →
+simulation → dispatch to completion. This is the live kill-switch proof: if any
+module silently reached for the network, the script would fail.
+
+---
+
 ## 7. Compute & API cost controls
 
 | Control | Implementation |
 |---|---|
 | Runtime API calls | **0**. Dataset and model are bundled; the app makes no outbound request. |
-| Data acquisition | `scripts/fetch_data.py` runs once; the 2.5 MB CSV is committed. No per-user or per-render fetch. |
+| Data acquisition | `scripts/fetch_data.py` runs once; the 2.5 MB Phase 1 CSV and 2.7 MB onsite CSV are committed. No per-user or per-render fetch. |
 | Model loading | `joblib.load` once per process, memoized with `st.cache_resource`; file mtime invalidates the cache. |
 | Data loading | `st.cache_data` keyed on the CSV mtime; the 31k-row raw table loads once, not on every widget interaction. |
 | City ranking / heatmap | One vectorized `.predict()` for all wards × horizons; no loop of API calls or per-ward model reloads. |
+| Phase 2 allocation / routing | Pure NumPy/pandas water-filling and greedy matching; no MILP solver, no external service. |
+| Phase 2 simulation | A few dozen local `model.predict()` calls per ward-week; no GPU and no LLM. |
+| Dispatch | `str`/HTML templates, capped SMS; zero tokens and zero network calls. |
+| Offline proof | `scripts/offline_check.py` runs the full pipeline with sockets blocked. |
 | Driver explanation | Local single-feature occlusion (≈30 predictions), no SHAP/numba dependency and no external service. |
 | LLM usage | **None in the product loop.** No token spend per prediction, per render or per user. The team used AI coding assistants during development only. |
 | If an LLM narrative layer is added later | One call per explicit user action, cache keyed by `(ward, as-of, horizon)`, hard cap of ~300 output tokens, local template fallback, and a per-session budget. None of this is needed to run the current app. |
