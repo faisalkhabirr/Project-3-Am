@@ -28,6 +28,12 @@ def build_hash() -> str:
     if override:
         return override[:12]
     try:
+        secret = st.secrets.get("COMMIT_HASH")  # type: ignore[union-attr]
+    except Exception:  # noqa: BLE001 - no secrets file on local/offline runs
+        secret = None
+    if secret:
+        return str(secret)[:12]
+    try:
         return subprocess.check_output(
             ["git", "rev-parse", "--short=12", "HEAD"],
             cwd=ROOT,

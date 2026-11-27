@@ -321,16 +321,21 @@ def render_command() -> None:
                 },
             )
 
-        city_saline_gap = int(city_frame["deficit_saline"].sum())
-        if city_saline_gap > 0:
-            worst = city_frame.sort_values("deficit_saline", ascending=False).head(3)
+        city_any_gap = city_frame[
+            ["deficit_saline", "deficit_kits", "deficit_beds", "deficit_crews"]
+        ].sum(axis=1)
+        if (city_any_gap > 0).any():
+            worst = city_frame.assign(_gap=city_any_gap).sort_values(
+                "_gap", ascending=False
+            ).head(3)
             names = ", ".join(
-                f"{row.ward_id.replace('_', ' ')} ({int(row.deficit_saline)} bags)"
-                for row in worst.itertuples()
+                f"{ward.replace('_', ' ')} ({int(gap)} units)"
+                for ward, gap in zip(worst["ward_id"], worst["_gap"], strict=True)
             )
             st.error(
-                f"Critical supply deficit in {city}: {city_saline_gap:,} saline bags cannot "
-                f"be fulfilled. Worst wards: {names}."
+                f"Critical supply deficit in {city}: {int((city_any_gap > 0).sum())} of "
+                f"{len(city_frame)} wards cannot be 100% fulfilled at this stock level. "
+                f"Worst: {names}."
             )
         elif allocation.total_deficit["saline_bags_needed"] > 0:
             st.warning(
@@ -338,7 +343,7 @@ def render_command() -> None:
                 "saline bags remain unfunded elsewhere in the 60-ward region."
             )
         else:
-            st.success("All saline demand is covered at this stock level.")
+            st.success("All ward demand is covered at this stock level.")
 
         st.markdown("#### Ward allocation ledger")
         st.dataframe(
